@@ -1,0 +1,286 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.12.1
+2 info using node@v24.15.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\Acer\Documents\np-shop-versions\np-shop-v7\.npmrc
+5 silly config load:file:C:\Users\Acer\.npmrc
+6 silly config load:file:C:\Users\Acer\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install bootstrap tailwindcss autoprefixer
+8 verbose argv "install" "bootstrap" "tailwindcss" "autoprefixer" "--cache" ".\\.npm-cache"
+9 verbose logfile logs-max:10 dir:C:\Users\Acer\Documents\np-shop-versions\np-shop-v7\.npm-cache\_logs\2026-06-15T04_46_50_901Z-
+10 verbose logfile C:\Users\Acer\Documents\np-shop-versions\np-shop-v7\.npm-cache\_logs\2026-06-15T04_46_50_901Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+14 silly idealTree buildDeps
+15 silly fetch manifest bootstrap@*
+16 silly packumentCache full:https://registry.npmjs.org/bootstrap cache-miss
+17 http fetch GET 200 https://registry.npmjs.org/bootstrap 439ms (cache miss)
+18 silly packumentCache full:https://registry.npmjs.org/bootstrap set size:undefined disposed:false
+19 silly fetch manifest @popperjs/core@^2.11.8
+20 silly packumentCache full:https://registry.npmjs.org/@popperjs%2fcore cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/npm 600ms
+22 http fetch GET 200 https://registry.npmjs.org/@popperjs%2fcore 1331ms (cache miss)
+23 silly packumentCache full:https://registry.npmjs.org/@popperjs%2fcore set size:undefined disposed:false
+24 silly fetch manifest tailwindcss@*
+25 silly packumentCache full:https://registry.npmjs.org/tailwindcss cache-miss
+26 http fetch GET 200 https://registry.npmjs.org/tailwindcss 542ms (cache miss)
+27 silly packumentCache full:https://registry.npmjs.org/tailwindcss set size:undefined disposed:false
+28 silly fetch manifest autoprefixer@*
+29 silly packumentCache full:https://registry.npmjs.org/autoprefixer cache-miss
+30 http fetch GET 200 https://registry.npmjs.org/autoprefixer 122ms (cache miss)
+31 silly packumentCache full:https://registry.npmjs.org/autoprefixer set size:undefined disposed:false
+32 silly fetch manifest postcss@^8.1.0
+33 silly packumentCache full:https://registry.npmjs.org/postcss cache-miss
+34 http fetch GET 200 https://registry.npmjs.org/postcss 219ms (cache miss)
+35 silly packumentCache full:https://registry.npmjs.org/postcss set size:undefined disposed:false
+36 silly placeDep ROOT autoprefixer@10.5.0 OK for: np-shop@1.0.0 want: *
+37 silly placeDep ROOT bootstrap@5.3.8 OK for: np-shop@1.0.0 want: *
+38 silly placeDep ROOT @popperjs/core@2.11.8 OK for: bootstrap@5.3.8 want: ^2.11.8
+39 silly placeDep ROOT tailwindcss@4.3.1 OK for: np-shop@1.0.0 want: *
+40 silly fetch manifest fraction.js@^5.3.4
+41 silly packumentCache full:https://registry.npmjs.org/fraction.js cache-miss
+42 silly fetch manifest postcss-value-parser@^4.2.0
+43 silly packumentCache full:https://registry.npmjs.org/postcss-value-parser cache-miss
+44 http fetch GET 200 https://registry.npmjs.org/postcss-value-parser 108ms (cache miss)
+45 silly packumentCache full:https://registry.npmjs.org/postcss-value-parser set size:undefined disposed:false
+46 http fetch GET 200 https://registry.npmjs.org/fraction.js 510ms (cache miss)
+47 silly packumentCache full:https://registry.npmjs.org/fraction.js set size:undefined disposed:false
+48 silly placeDep ROOT fraction.js@5.3.4 OK for: autoprefixer@10.5.0 want: ^5.3.4
+49 silly placeDep ROOT postcss-value-parser@4.2.0 OK for: autoprefixer@10.5.0 want: ^4.2.0
+50 silly reify moves {}
+51 silly audit bulk request {
+51 silly audit   '@babel/code-frame': [ '7.29.7' ],
+51 silly audit   '@babel/compat-data': [ '7.29.7' ],
+51 silly audit   '@babel/core': [ '7.29.7' ],
+51 silly audit   '@babel/generator': [ '7.29.7' ],
+51 silly audit   '@babel/helper-compilation-targets': [ '7.29.7' ],
+51 silly audit   '@babel/helper-globals': [ '7.29.7' ],
+51 silly audit   '@babel/helper-module-imports': [ '7.29.7' ],
+51 silly audit   '@babel/helper-module-transforms': [ '7.29.7' ],
+51 silly audit   '@babel/helper-plugin-utils': [ '7.29.7' ],
+51 silly audit   '@babel/helper-string-parser': [ '7.29.7' ],
+51 silly audit   '@babel/helper-validator-identifier': [ '7.29.7' ],
+51 silly audit   '@babel/helper-validator-option': [ '7.29.7' ],
+51 silly audit   '@babel/helpers': [ '7.29.7' ],
+51 silly audit   '@babel/parser': [ '7.29.7' ],
+51 silly audit   '@babel/plugin-transform-react-jsx-self': [ '7.29.7' ],
+51 silly audit   '@babel/plugin-transform-react-jsx-source': [ '7.29.7' ],
+51 silly audit   '@babel/template': [ '7.29.7' ],
+51 silly audit   '@babel/traverse': [ '7.29.7' ],
+51 silly audit   '@babel/types': [ '7.29.7' ],
+51 silly audit   '@esbuild/aix-ppc64': [ '0.21.5' ],
+51 silly audit   '@esbuild/android-arm': [ '0.21.5' ],
+51 silly audit   '@esbuild/android-arm64': [ '0.21.5' ],
+51 silly audit   '@esbuild/android-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/darwin-arm64': [ '0.21.5' ],
+51 silly audit   '@esbuild/darwin-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/freebsd-arm64': [ '0.21.5' ],
+51 silly audit   '@esbuild/freebsd-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-arm': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-arm64': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-ia32': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-loong64': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-mips64el': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-ppc64': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-riscv64': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-s390x': [ '0.21.5' ],
+51 silly audit   '@esbuild/linux-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/netbsd-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/openbsd-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/sunos-x64': [ '0.21.5' ],
+51 silly audit   '@esbuild/win32-arm64': [ '0.21.5' ],
+51 silly audit   '@esbuild/win32-ia32': [ '0.21.5' ],
+51 silly audit   '@esbuild/win32-x64': [ '0.21.5' ],
+51 silly audit   '@jridgewell/gen-mapping': [ '0.3.13' ],
+51 silly audit   '@jridgewell/remapping': [ '2.3.5' ],
+51 silly audit   '@jridgewell/resolve-uri': [ '3.1.2' ],
+51 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+51 silly audit   '@jridgewell/trace-mapping': [ '0.3.31' ],
+51 silly audit   '@remix-run/router': [ '1.23.3' ],
+51 silly audit   '@rolldown/pluginutils': [ '1.0.0-beta.27' ],
+51 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-android-arm64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-darwin-arm64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-darwin-x64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-freebsd-x64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-loong64-musl': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-ppc64-musl': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-openbsd-x64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.62.0' ],
+51 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.62.0' ],
+51 silly audit   '@types/babel__core': [ '7.20.5' ],
+51 silly audit   '@types/babel__generator': [ '7.27.0' ],
+51 silly audit   '@types/babel__template': [ '7.4.4' ],
+51 silly audit   '@types/babel__traverse': [ '7.28.0' ],
+51 silly audit   '@types/estree': [ '1.0.9' ],
+51 silly audit   '@types/prop-types': [ '15.7.15' ],
+51 silly audit   '@types/react': [ '18.3.31' ],
+51 silly audit   '@types/react-dom': [ '18.3.7' ],
+51 silly audit   '@vitejs/plugin-react': [ '4.7.0' ],
+51 silly audit   'agent-base': [ '6.0.2' ],
+51 silly audit   asynckit: [ '0.4.0' ],
+51 silly audit   axios: [ '1.18.0' ],
+51 silly audit   'baseline-browser-mapping': [ '2.10.37' ],
+51 silly audit   browserslist: [ '4.28.2' ],
+51 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+51 silly audit   'caniuse-lite': [ '1.0.30001799' ],
+51 silly audit   'combined-stream': [ '1.0.8' ],
+51 silly audit   'convert-source-map': [ '2.0.0' ],
+51 silly audit   csstype: [ '3.2.3' ],
+51 silly audit   debug: [ '4.4.3' ],
+51 silly audit   'delayed-stream': [ '1.0.0' ],
+51 silly audit   'dunder-proto': [ '1.0.1' ],
+51 silly audit   'electron-to-chromium': [ '1.5.372' ],
+51 silly audit   'es-define-property': [ '1.0.1' ],
+51 silly audit   'es-errors': [ '1.3.0' ],
+51 silly audit   'es-object-atoms': [ '1.1.2' ],
+51 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+51 silly audit   esbuild: [ '0.21.5' ],
+51 silly audit   escalade: [ '3.2.0' ],
+51 silly audit   'follow-redirects': [ '1.16.0' ],
+51 silly audit   'form-data': [ '4.0.6' ],
+51 silly audit   'framer-motion': [ '11.18.2' ],
+51 silly audit   fsevents: [ '2.3.3' ],
+51 silly audit   'function-bind': [ '1.1.2' ],
+51 silly audit   gensync: [ '1.0.0-beta.2' ],
+51 silly audit   'get-intrinsic': [ '1.3.0' ],
+51 silly audit   'get-proto': [ '1.0.1' ],
+51 silly audit   goober: [ '2.1.19' ],
+51 silly audit   gopd: [ '1.2.0' ],
+51 silly audit   'has-symbols': [ '1.1.0' ],
+51 silly audit   'has-tostringtag': [ '1.0.2' ],
+51 silly audit   hasown: [ '2.0.4' ],
+51 silly audit   'https-proxy-agent': [ '5.0.1' ],
+51 silly audit   'js-tokens': [ '4.0.0' ],
+51 silly audit   jsesc: [ '3.1.0' ],
+51 silly audit   json5: [ '2.2.3' ],
+51 silly audit   'loose-envify': [ '1.4.0' ],
+51 silly audit   'lru-cache': [ '5.1.1' ],
+51 silly audit   'math-intrinsics': [ '1.1.0' ],
+51 silly audit   'mime-db': [ '1.52.0' ],
+51 silly audit   'mime-types': [ '2.1.35' ],
+51 silly audit   'motion-dom': [ '11.18.1' ],
+51 silly audit   'motion-utils': [ '11.18.1' ],
+51 silly audit   ms: [ '2.1.3' ],
+51 silly audit   nanoid: [ '3.3.12' ],
+51 silly audit   'node-releases': [ '2.0.47' ],
+51 silly audit   picocolors: [ '1.1.1' ],
+51 silly audit   postcss: [ '8.5.15' ],
+51 silly audit   'proxy-from-env': [ '2.1.0' ],
+51 silly audit   react: [ '18.3.1' ],
+51 silly audit   'react-dom': [ '18.3.1' ],
+51 silly audit   'react-hot-toast': [ '2.6.0' ],
+51 silly audit   'react-refresh': [ '0.17.0' ],
+51 silly audit   'react-router': [ '6.30.4' ],
+51 silly audit   'react-router-dom': [ '6.30.4' ],
+51 silly audit   rollup: [ '4.62.0' ],
+51 silly audit   scheduler: [ '0.23.2' ],
+51 silly audit   semver: [ '6.3.1' ],
+51 silly audit   'source-map-js': [ '1.2.1' ],
+51 silly audit   tslib: [ '2.8.1' ],
+51 silly audit   'update-browserslist-db': [ '1.2.3' ],
+51 silly audit   'use-sync-external-store': [ '1.6.0' ],
+51 silly audit   vite: [ '5.4.21' ],
+51 silly audit   yallist: [ '3.1.1' ],
+51 silly audit   zustand: [ '4.5.7' ],
+51 silly audit   autoprefixer: [ '10.5.0' ],
+51 silly audit   bootstrap: [ '5.3.8' ],
+51 silly audit   '@popperjs/core': [ '2.11.8' ],
+51 silly audit   tailwindcss: [ '4.3.1' ],
+51 silly audit   'fraction.js': [ '5.3.4' ],
+51 silly audit   'postcss-value-parser': [ '4.2.0' ]
+51 silly audit }
+52 http cache @popperjs/core@https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz 0ms (cache hit)
+53 http cache postcss-value-parser@https://registry.npmjs.org/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz 0ms (cache hit)
+54 http cache fraction.js@https://registry.npmjs.org/fraction.js/-/fraction.js-5.3.4.tgz 0ms (cache hit)
+55 http cache tailwindcss@https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.1.tgz 0ms (cache hit)
+56 http cache bootstrap@https://registry.npmjs.org/bootstrap/-/bootstrap-5.3.8.tgz 0ms (cache hit)
+57 silly tarball no local data for @popperjs/core@https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz. Extracting by manifest.
+58 silly tarball no local data for postcss-value-parser@https://registry.npmjs.org/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz. Extracting by manifest.
+59 silly tarball no local data for fraction.js@https://registry.npmjs.org/fraction.js/-/fraction.js-5.3.4.tgz. Extracting by manifest.
+60 http cache autoprefixer@https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.5.0.tgz 0ms (cache hit)
+61 silly tarball no local data for tailwindcss@https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.1.tgz. Extracting by manifest.
+62 silly tarball no local data for bootstrap@https://registry.npmjs.org/bootstrap/-/bootstrap-5.3.8.tgz. Extracting by manifest.
+63 silly tarball no local data for autoprefixer@https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.5.0.tgz. Extracting by manifest.
+64 http fetch GET 200 https://registry.npmjs.org/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz 249ms (cache miss)
+65 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 291ms
+66 silly audit report {
+66 silly audit report   esbuild: [
+66 silly audit report     {
+66 silly audit report       id: 1102341,
+66 silly audit report       url: 'https://github.com/advisories/GHSA-67mh-4wv8-2f99',
+66 silly audit report       title: 'esbuild enables any website to send any requests to the development server and read the response',
+66 silly audit report       severity: 'moderate',
+66 silly audit report       vulnerable_versions: '<=0.24.2',
+66 silly audit report       cwe: [Array],
+66 silly audit report       cvss: [Object]
+66 silly audit report     },
+66 silly audit report     {
+66 silly audit report       id: 1120679,
+66 silly audit report       url: 'https://github.com/advisories/GHSA-gv7w-rqvm-qjhr',
+66 silly audit report       title: 'esbuild: Missing binary integrity verification in Deno module enables remote code execution via NPM_CONFIG_REGISTRY',
+66 silly audit report       severity: 'high',
+66 silly audit report       vulnerable_versions: '>=0.17.0 <0.28.1',
+66 silly audit report       cwe: [Array],
+66 silly audit report       cvss: [Object]
+66 silly audit report     }
+66 silly audit report   ],
+66 silly audit report   vite: [
+66 silly audit report     {
+66 silly audit report       id: 1116229,
+66 silly audit report       url: 'https://github.com/advisories/GHSA-4w7w-66w2-5vf9',
+66 silly audit report       title: 'Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling',
+66 silly audit report       severity: 'moderate',
+66 silly audit report       vulnerable_versions: '<=6.4.1',
+66 silly audit report       cwe: [Array],
+66 silly audit report       cvss: [Object]
+66 silly audit report     }
+66 silly audit report   ]
+66 silly audit report }
+67 silly packumentCache corgi:https://registry.npmjs.org/esbuild cache-miss
+68 silly packumentCache corgi:https://registry.npmjs.org/vite cache-miss
+69 http fetch GET 200 https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.1.tgz 370ms (cache miss)
+70 http fetch GET 200 https://registry.npmjs.org/fraction.js/-/fraction.js-5.3.4.tgz 443ms (cache miss)
+71 http fetch GET 200 https://registry.npmjs.org/esbuild 269ms (cache miss)
+72 silly packumentCache corgi:https://registry.npmjs.org/esbuild set size:undefined disposed:false
+73 http fetch GET 200 https://registry.npmjs.org/vite 320ms (cache miss)
+74 silly packumentCache corgi:https://registry.npmjs.org/vite set size:undefined disposed:false
+75 silly packumentCache corgi:https://registry.npmjs.org/@vitejs%2fplugin-react cache-miss
+76 http fetch GET 200 https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.5.0.tgz 803ms (cache miss)
+77 http fetch GET 200 https://registry.npmjs.org/@vitejs%2fplugin-react 103ms (cache miss)
+78 silly packumentCache corgi:https://registry.npmjs.org/@vitejs%2fplugin-react set size:undefined disposed:false
+79 http fetch GET 200 https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz 1475ms (cache miss)
+80 http fetch GET 200 https://registry.npmjs.org/bootstrap/-/bootstrap-5.3.8.tgz 1478ms (cache miss)
+81 silly ADD node_modules/postcss-value-parser
+82 silly ADD node_modules/fraction.js
+83 silly ADD node_modules/tailwindcss
+84 silly ADD node_modules/@popperjs/core
+85 silly ADD node_modules/bootstrap
+86 silly ADD node_modules/autoprefixer
+87 verbose cwd C:\Users\Acer\Documents\np-shop-versions\np-shop-v7
+88 verbose os Windows_NT 10.0.26200
+89 verbose node v24.15.0
+90 verbose npm  v11.12.1
+91 notice
+91 notice New minor version of npm available! 11.12.1 -> 11.17.0
+91 notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+91 notice To update run: npm install -g npm@11.17.0
+91 notice  { force: true, Symbol(proc-log.meta): true }
+92 verbose exit 0
+93 info ok
