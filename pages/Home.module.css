@@ -1,0 +1,426 @@
+/* ─── Token Mapping Pipeline ─── */
+:root {
+  --bg-base: #0d0f11;
+  --bg-surface: #131619;
+  --bg-subtle: #1a1e22;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #22272d;
+  --header-height: 80px;
+  
+  /* Precision Sharp Accents */
+  --neon-glow-primary: #ec4899;
+  --neon-glow-secondary: #2dd4bf;
+}
+
+:global([data-theme="light"]) {
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border: #cbd5e1;
+}
+
+/* ─── Base Page Shell ─── */
+.page {
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Header Strip ─── */
+.strip {
+  border-bottom: 1px solid var(--border);
+  padding: 32px 0;
+  background: var(--bg-surface);
+}
+
+.stripInner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.12s ease;
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+}
+
+/* ─── Structural Workspace Layout ─── */
+.body {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ─── Monochrome Minimalist Sidebar ─── */
+.sidebar {
+  position: sticky;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebarLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.manifestoFrame {
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  padding: 16px;
+}
+
+.manifestoText {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.monochromeBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  padding: 8px 12px;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Main Content Section ─── */
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+}
+
+.resultLabel {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.countBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ─── Horizontal Laser Sweep Core Effect ─── */
+.horizontalLaserBeam {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--neon-glow-secondary), transparent);
+  box-shadow: 0 0 12px var(--neon-glow-secondary), 0 0 4px var(--neon-glow-primary);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ─── Thick, Sharp, Boxxy Large Monolith Card ─── */
+.monolithCard {
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.monolithImgWrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-subtle);
+  border-right: 2px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.monolithImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s;
+}
+
+.monolithBody {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.monolithTitle {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.monolithDesc {
+  margin: 0 0 24px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.monolithFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px dashed var(--border);
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.monolithStatus {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.textLink {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+/* Monolith Hover Triggers */
+.monolithCard:hover {
+  border-color: var(--text-primary);
+}
+
+.monolithCard:hover .monolithImg {
+  filter: grayscale(0) contrast(1);
+  transform: scale(1.02);
+}
+
+.monolithCard:hover .horizontalLaserBeam {
+  animation: laserSweep 1.8s infinite linear;
+  opacity: 1;
+}
+
+/* ─── Thick, Sharp, Smaller Boxxy Cards Grid ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.productCard {
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: 0px; /* Force sharp architectural box limits */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.productImgWrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-subtle);
+  border-bottom: 2px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.productImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.productBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cardKicker {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.productTitle {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 950; /* Thick sharp styling */
+  text-transform: uppercase;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.productFooter {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.productPrice {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.exploreBtn {
+  background: var(--text-primary);
+  color: var(--bg-base);
+  border: none;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 0px; /* Stripped rounded edges away completely */
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.exploreBtn:hover {
+  background: var(--neon-glow-secondary);
+  color: #000000;
+}
+
+/* ─── Small Card Hover Interactions ─── */
+.productCardActive {
+  border-color: var(--text-primary);
+}
+
+.productCardActive .productImg {
+  filter: grayscale(0) contrast(1);
+  transform: scale(1.03);
+}
+
+.productCardActive .horizontalLaserBeam {
+  animation: laserSweep 1.5s infinite linear;
+  opacity: 1;
+}
+
+/* ─── Laser Loop Motion Profile ─── */
+@keyframes laserSweep {
+  0% {
+    top: -5%;
+  }
+  100% {
+    top: 105%;
+  }
+}
+
+/* ─── Media Adaptations ─── */
+@media (max-width: 991px) {
+  .body {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .sidebar {
+    position: static;
+  }
+  .monolithCard {
+    grid-template-columns: 1fr;
+  }
+  .monolithImgWrap {
+    border-right: none;
+    border-bottom: 2px solid var(--border);
+  }
+}
+
+@media (max-width: 600px) {
+  .stripInner, .body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .stripInner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+  }
+  .monolithBody {
+    padding: 20px;
+  }
+}
