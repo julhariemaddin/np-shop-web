@@ -1,0 +1,114 @@
+.card {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent) !important;
+  background: var(--bg-surface) !important;
+  transition:
+    transform var(--duration-base) var(--ease),
+    border-color var(--duration-base) var(--ease),
+    box-shadow var(--duration-base) var(--ease);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: auto 18px 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), #14b8a6);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-base) var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border)) !important;
+  box-shadow: 0 22px 60px color-mix(in srgb, #000 14%, transparent) !important;
+}
+
+.card:hover::after {
+  transform: scaleX(1);
+}
+
+.link {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.imageWrap {
+  aspect-ratio: 4/3.35;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent),
+    var(--bg-subtle);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease);
+}
+
+.card:hover .image {
+  transform: scale(1.06);
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--border-strong);
+}
+
+.outOfStock {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: color-mix(in srgb, var(--bg-surface) 88%, transparent) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border);
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(12px);
+}
+
+.info {
+  min-height: 104px;
+  border-top: 1px solid var(--border);
+}
+
+.name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.price {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.currency {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 3px;
+  vertical-align: super;
+}

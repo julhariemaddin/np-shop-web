@@ -1,0 +1,134 @@
+.page {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Order summary */
+.orderSummary {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: var(--space-5);
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+  gap: var(--space-4);
+}
+
+.item:last-child { border-bottom: none; }
+
+.itemName {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.itemMeta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.itemPrice {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-4);
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--border-strong);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.totalPrice {
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+/* Payment */
+.payment {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-5));
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: var(--space-5);
+}
+
+.paymentInfo {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.paypalBadge {
+  border: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+}
+
+.paypalText {
+  font-size: 18px;
+  font-weight: 700;
+  color: #003087;
+  letter-spacing: -0.02em;
+}
+
+[data-theme='dark'] .paypalText {
+  color: #60A5FA;
+}
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .payment { position: static; }
+  .page { padding: var(--space-5) var(--space-4); }
+}

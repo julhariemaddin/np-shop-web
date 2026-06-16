@@ -1,0 +1,83 @@
+.page { 
+  max-width: 800px; 
+  margin: 80px auto; 
+  padding: 0 20px; 
+}
+
+.header { 
+  margin-bottom: 60px; 
+}
+
+.title { 
+  font-size: 3rem; 
+  font-weight: 700; 
+  letter-spacing: -0.05em; 
+  color: var(--text-primary); 
+  margin: 0; 
+}
+
+.subtitle { 
+  color: var(--text-muted); 
+  font-size: 1.1rem; 
+  margin-top: 12px; 
+  font-weight: 400;
+}
+
+.navGrid { 
+  display: grid; 
+  grid-template-columns: 1fr; 
+  gap: 16px; 
+}
+
+.navCard { 
+  display: flex; 
+  align-items: center; 
+  padding: 32px; 
+  background: var(--bg-surface); 
+  border: 1px solid var(--border); 
+  text-decoration: none; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.navCard:hover { 
+  border-color: var(--text-primary); 
+  padding-left: 40px;
+}
+
+.iconContainer {
+  margin-right: 24px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.navCard:hover .iconContainer {
+  color: var(--text-primary);
+}
+
+.cardTitle { 
+  font-size: 1.25rem; 
+  font-weight: 600;
+  margin: 0; 
+  color: var(--text-primary); 
+}
+
+.cardDesc { 
+  font-size: 0.9rem; 
+  color: var(--text-muted); 
+  margin: 8px 0 0 0; 
+}
+
+.arrow {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-weight: 200;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.navCard:hover .arrow {
+  transform: translateX(10px);
+  color: var(--text-primary);
+}
