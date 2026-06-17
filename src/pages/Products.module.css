@@ -46,6 +46,10 @@
   flex-wrap: wrap;
 }
 
+.stripLeft {
+  flex: 1 1 auto;
+}
+
 .eyebrow {
   display: block;
   font-size: 10px;
@@ -59,7 +63,7 @@
 .heroTitle {
   margin: 0;
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(32px, 4vw, 48px);
+  font-size: clamp(28px, 4vw, 48px);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -67,7 +71,8 @@
 
 /* ─── Input Bar Configuration ─── */
 .searchWrap {
-  flex: 0 1 380px;
+  flex: 1 1 380px;
+  max-width: 100%;
   min-width: 240px;
   position: relative;
   display: flex;
@@ -85,17 +90,18 @@
 
 .searchInput {
   width: 100%;
-  height: 40px;
+  height: 44px;
   padding: 0 36px 0 38px;
   border-radius: 6px;
   border: 2px solid var(--border);
   background: var(--bg-surface);
   color: var(--text-primary);
   font-family: var(--font-body), sans-serif;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   outline: none;
   transition: border-color 0.12s ease;
+  -webkit-appearance: none;
 }
 
 .searchInput:focus {
@@ -111,7 +117,7 @@
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 8px;
 }
 
 .clearBtn:hover {
@@ -133,6 +139,7 @@
 .sidebar {
   position: sticky;
   top: calc(var(--header-height) + 24px);
+  min-width: 0;
 }
 
 .sidebarLabel {
@@ -142,6 +149,10 @@
   text-transform: uppercase;
   color: var(--text-muted);
   margin: 0 0 16px;
+}
+
+.categoryScrollContainer {
+  width: 100%;
 }
 
 .categoryList {
@@ -158,14 +169,15 @@
   text-align: left;
   background: none;
   border: none;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 4px;
   font-family: var(--font-body), sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.12s ease;
+  transition: color 0.12s ease, background-color 0.12s ease;
+  white-space: nowrap;
 }
 
 .catItem:hover:not(:disabled) {
@@ -194,6 +206,7 @@
   margin-bottom: 28px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
+  gap: 16px;
 }
 
 .resultLabel {
@@ -210,6 +223,7 @@
   color: var(--text-muted);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ─── Dynamic Search Text Highlight Overlay ─── */
@@ -224,7 +238,7 @@
 /* ─── Product Card Design ─── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 24px;
 }
 
@@ -236,6 +250,7 @@
   display: flex;
   flex-direction: column;
   transition: transform 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
 }
 
 .productCard:hover {
@@ -251,10 +266,36 @@
   overflow: hidden;
 }
 
+/* Individual Image Layout Scaffolding */
+.imageInnerContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.imageLoaderPlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-subtle);
+  z-index: 2;
+}
+
 .productImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.imgHidden {
+  opacity: 0;
+}
+
+.imgVisible {
+  opacity: 1;
 }
 
 .productBody {
@@ -308,7 +349,7 @@
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 2px;
   cursor: pointer;
 }
@@ -316,7 +357,7 @@
 /* ─── Skeleton Loading Grid Matrix ─── */
 .skeletonGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 24px;
 }
 
@@ -411,14 +452,15 @@
 }
 
 .pageBtn {
-  height: 34px;
-  padding: 0 16px;
+  height: 40px;
+  padding: 0 20px;
   background: var(--bg-surface);
   border: 2px solid var(--border);
   font-family: var(--font-body), sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  user-select: none;
 }
 
 .pageBtn:not(:disabled):hover {
@@ -431,45 +473,153 @@
 }
 
 .pageInfo {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-muted);
 }
 
-/* ─── Media Adaptations ─── */
-@media (max-width: 991px) {
+/* ─── Responsive Media Breakpoints ─── */
+
+@media (max-width: 1024px) {
+  .body {
+    grid-template-columns: 180px 1fr;
+    gap: 32px;
+    padding: 32px 24px 60px;
+  }
+  .stripInner {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 910px) {
   .body {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 24px;
   }
+  
   .sidebar {
     position: static;
   }
+  
+  .sidebarLabel {
+    margin-bottom: 10px;
+  }
+
+  .categoryScrollContainer {
+    overflow-x: auto;
+    width: 100vw;
+    position: relative;
+    left: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .categoryScrollContainer::-webkit-scrollbar {
+    display: none;
+  }
+
   .categoryList {
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
+    padding-bottom: 4px;
+    width: max-content;
   }
+
   .catItem {
     width: auto;
+    padding: 8px 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
   }
 }
 
 @media (max-width: 600px) {
-  .stripInner, .body {
-    padding-left: 20px;
-    padding-right: 20px;
+  .strip {
+    padding: 24px 0;
   }
+
   .stripInner {
+    padding: 0 16px;
     flex-direction: column;
-    align-items: stretch;
-    gap: 20px;
-  }
-  .searchWrap {
-    max-width: 100%;
-  }
-  .grid, .skeletonGrid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    align-items: flex-start;
     gap: 16px;
+  }
+
+  .searchWrap {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .body {
+    padding: 20px 16px 60px;
+  }
+
+  .categoryScrollContainer {
+    left: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .topBar {
+    margin-bottom: 20px;
+  }
+
+  .resultLabel {
+    font-size: 18px;
+  }
+
+  .grid, .skeletonGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+
+  .productBody {
+    padding: 12px;
+  }
+
+  .productTitle {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .productDescription {
+    font-size: 11px;
+    margin-bottom: 12px;
+    -webkit-line-clamp: 2;
+  }
+
+  .productFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .productPrice {
+    font-size: 14px;
+  }
+
+  .exploreBtn {
+    width: 100%;
+    text-align: center;
+    padding: 8px 0;
+  }
+  
+  .pagination {
+    gap: 12px;
+    padding-top: 36px;
+  }
+  
+  .pageBtn {
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid, .skeletonGrid {
+    grid-template-columns: 1fr;
   }
 }

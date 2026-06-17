@@ -6,14 +6,14 @@
 
 .inner {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 240px 1fr;
   gap: var(--space-7);
   align-items: start;
 }
 
 .sidebar {
   position: sticky;
-  top: calc(var(--header-height) + var(--space-5));
+  top: calc(var(--header-height, 72px) + var(--space-5));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,6 +22,7 @@
   border: 1px solid var(--border);
   background: var(--bg-surface);
   padding: var(--space-6);
+  box-sizing: border-box;
 }
 
 .avatar {
@@ -32,21 +33,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
+  font-family: var(--font-display), sans-serif;
   font-size: 32px;
   color: var(--accent);
   margin-bottom: var(--space-2);
+  border-radius: 50%;
 }
 
 .username {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .email {
   font-size: 12px;
   color: var(--text-muted);
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .roles {
@@ -54,19 +66,21 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   justify-content: center;
+  margin-top: var(--space-1);
 }
 
 .role {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border: 1px solid var(--accent);
   color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
-/* Forms */
+/* Forms structure block configuration */
 .forms {
   display: flex;
   flex-direction: column;
@@ -81,10 +95,11 @@
 
 .sectionTitle {
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+  margin-top: 0;
   margin-bottom: var(--space-5);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);
@@ -93,11 +108,61 @@
 .form {
   display: flex;
   flex-direction: column;
+  gap: var(--space-5);
+}
+
+.actionRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: var(--space-2);
+}
+
+/* Page State Skeleton Shimmer Components */
+.sidebarSkeleton, .sectionSkeleton {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarSkeleton {
+  align-items: center;
   gap: var(--space-4);
 }
 
+.avatarSkeleton {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--border);
+  opacity: 0.6;
+}
+
+.lineSkeleton {
+  background: var(--border);
+  border-radius: 4px;
+  opacity: 0.5;
+  animation: pulseShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseShimmer {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.4; }
+}
+
+/* Responsive Adaptive Viewports media handles */
 @media (max-width: 768px) {
-  .inner { grid-template-columns: 1fr; }
-  .sidebar { position: static; }
-  .page { padding: var(--space-5) var(--space-4); }
+  .inner { 
+    grid-template-columns: 1fr; 
+    gap: var(--space-5);
+  }
+  .sidebar { 
+    position: static; 
+    width: 100%;
+  }
+  .page { 
+    padding: var(--space-5) var(--space-4); 
+  }
 }

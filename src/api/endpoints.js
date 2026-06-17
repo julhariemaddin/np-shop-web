@@ -39,7 +39,25 @@ export const imageEndpoints = {
     })
   },
   delete: (imageId) => api.delete(`/image/${imageId}`),
+  
+  // Left intact for backward compatibility if you still use it anywhere
   getUrl: (url) => `${import.meta.env.VITE_API_BASE_URL}/image/${url}`,
+
+  /**
+   * Safe fetch mechanism for ngrok. Downloads the image binary stream 
+   * using the authorized client instance to bypass the abuse warning page.
+   * * @param {string} filename - The clean image filename from your database records
+   * @returns {Promise<string>} An ephemeral client-side Object URL string (blob:)
+   */
+  fetchBlobUrl: async (filename) => {
+    try {
+      const response = await api.get(`/image/${filename}`, { responseType: 'blob' })
+      return URL.createObjectURL(response.data)
+    } catch (error) {
+      console.error('Failed to resolve ngrok asset pipeline download stream:', error)
+      return '/placeholder.png' // Safe internal fallback path
+    }
+  }
 }
 
 // ─── Categories ───────────────────────────────────────────────────────────────

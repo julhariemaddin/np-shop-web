@@ -19,13 +19,15 @@ export default function AdminCategories() {
   const fetchCategories = useCallback(async () => {
     try {
       const { data } = await categoryEndpoints.getAll()
-      setCategories(data)
+      setCategories(data || [])
     } catch {
       toast.error('Failed to load categories')
     }
   }, [])
 
-  useEffect(() => { fetchCategories() }, [fetchCategories])
+  useEffect(() => { 
+    fetchCategories() 
+  }, [fetchCategories])
 
   const handleCreate = async (e) => {
     e.preventDefault()
@@ -59,7 +61,7 @@ export default function AdminCategories() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this category?')) return
+    if (!confirm('Are you sure you want to permanently delete this category?')) return
     setDeletingId(id)
     try {
       await categoryEndpoints.delete(id)
@@ -77,19 +79,28 @@ export default function AdminCategories() {
       <div className={styles.inner}>
         <div className={styles.topBar}>
           <div>
-            <Link to="/admin" className={styles.breadcrumb}>← Admin</Link>
+            {/* Standardized Low-Profile Action Back Button */}
+            <Link to="/admin" className={styles.backButton}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Admin Dashboard</span>
+            </Link>
             <h1 className={styles.heading}>Categories</h1>
           </div>
         </div>
 
         {/* Create form */}
         <form onSubmit={handleCreate} className={styles.createForm}>
-          <Input
-            placeholder="New category name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            className={styles.createInput}
-          />
+          <div className={styles.createInputWrapper}>
+            <Input
+              placeholder="New category name"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className={styles.createInput}
+            />
+          </div>
           <Button type="submit" variant="primary" size="md" loading={creating}>
             Add category
           </Button>
@@ -97,29 +108,42 @@ export default function AdminCategories() {
 
         {/* List */}
         <div className={styles.list}>
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {categories.map((cat, i) => (
               <motion.div
                 key={cat.id}
                 className={styles.row}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -12 }}
-                transition={{ delay: i * 0.03, duration: 0.2 }}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.18 }}
               >
                 {editingId === cat.id ? (
                   <div className={styles.editRow}>
-                    <Input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      autoFocus
-                    />
-                    <Button variant="primary" size="sm" loading={savingId === cat.id} onClick={() => handleSave(cat.id)}>
-                      Save
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>
-                      Cancel
-                    </Button>
+                    <div className={styles.editInputWrapper}>
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className={styles.editActions}>
+                      <Button 
+                        variant="primary" 
+                        size="sm" 
+                        loading={savingId === cat.id} 
+                        onClick={() => handleSave(cat.id)}
+                      >
+                        Save
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -146,6 +170,7 @@ export default function AdminCategories() {
               </motion.div>
             ))}
           </AnimatePresence>
+          
           {categories.length === 0 && (
             <p className={styles.empty}>No categories yet. Add one above.</p>
           )}

@@ -8,6 +8,36 @@ import useCartStore from '../hooks/useCart'
 import Button from '../components/common/Button'
 import styles from './ProductDetail.module.css'
 
+// ─── Frontend Image Blob Cache Layer ─────────────────────────────────────────
+const IMAGE_BLOB_CACHE = {}
+const CACHE_TTL_MS = 2 * 60 * 1000 // 2 minutes
+
+const getCachedImageOrFetch = async (filename) => {
+  const cached = IMAGE_BLOB_CACHE[filename]
+  const now = Date.now()
+
+  if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+    return cached.blobUrl
+  }
+
+  if (cached) {
+    URL.revokeObjectURL(cached.blobUrl)
+    delete IMAGE_BLOB_CACHE[filename]
+  }
+
+  const resolvedBlobUrl = await imageEndpoints.fetchBlobUrl(filename)
+  
+  if (resolvedBlobUrl && resolvedBlobUrl.startsWith('blob:')) {
+    IMAGE_BLOB_CACHE[filename] = {
+      blobUrl: resolvedBlobUrl,
+      timestamp: now
+    }
+    return resolvedBlobUrl
+  }
+
+  return resolvedBlobUrl
+}
+
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -17,6 +47,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [images, setImages] = useState([]) 
+  const [imagesLoading, setImagesLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [qty, setQty] = useState(1)
   const [addingToCart, setAddingToCart] = useState(false)
@@ -26,12 +57,20 @@ export default function ProductDetail() {
   const timerRef = useRef(null)
 
   useEffect(() => {
-    const fetchProductData = async () => {
+    let activeSession = true
+
+    const fetchProductDataImmediate = async () => {
       try {
+        setLoading(true)
+        // 1. Fetch text metadata immediately
         const { data } = await productEndpoints.getById(id)
-        setProduct(data)
         
-        let compiledImages = []
+        if (!activeSession) return
+        setProduct(data)
+        setLoading(false)
+
+        // 2. Normalize image collection schema layout parameters
+        let rawImages = []
         let mainImgObj = null
 
         if (data.mainImage) {
@@ -40,32 +79,92 @@ export default function ProductDetail() {
           mainImgObj = { url: data.imageUrl, id: 'backend-main-url', isMain: true }
         }
 
-        if (mainImgObj) {
-          compiledImages.push(mainImgObj)
-        }
+        if (mainImgObj) rawImages.push(mainImgObj)
 
         if (data.images && data.images.length > 0) {
           const secondaryImages = data.images.filter(
             (img) => img.id !== mainImgObj?.id && img.url !== mainImgObj?.url
           )
-          compiledImages = [...compiledImages, ...secondaryImages]
+          rawImages = [...rawImages, ...secondaryImages]
         }
 
-        if (compiledImages.length === 0) {
-          compiledImages.push({ url: 'placeholder.jpg', id: 'empty', isMain: true })
+        if (rawImages.length === 0) {
+          rawImages.push({ url: 'placeholder.jpg', id: 'empty', isMain: true })
         }
 
-        setImages(compiledImages)
+        // Initialize state values with gray loading layout boxes immediately
+        const initialImagePlaceholderArray = rawImages.map(img => ({
+          ...img,
+          resolvedSrc: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+          isPending: true
+        }))
+        
+        setImages(initialImagePlaceholderArray)
         setActiveIndex(0)
+        setImagesLoading(true)
+
+        // 3. Fire parallel, independent requests instead of bottlenecking with Promise.all
+        rawImages.forEach(async (img, index) => {
+          try {
+            let safeSrc = 'https://placehold.co/600?text=No+Image+Found'
+
+            if (img.url && img.url !== 'placeholder.jpg') {
+              const resolvedBlobUrl = await getCachedImageOrFetch(img.url)
+              safeSrc = resolvedBlobUrl === '/placeholder.png' 
+                ? 'https://placehold.co/600?text=No+Image+Found' 
+                : resolvedBlobUrl
+            }
+
+            if (!activeSession) return
+
+            // Update single slots in the state array directly as soon as they settle
+            setImages((currentImages) => {
+              const nextImages = [...currentImages]
+              if (nextImages[index]) {
+                nextImages[index] = { 
+                  ...nextImages[index], 
+                  resolvedSrc: safeSrc, 
+                  isPending: false 
+                }
+              }
+              return nextImages
+            })
+
+            // Turn off the spinner overlay instantly if this index matches what the user looks at
+            if (index === 0) {
+              setImagesLoading(false)
+            }
+
+          } catch (err) {
+            console.error(`Failed resolving individual asset pipeline at index ${index}:`, err)
+            if (!activeSession) return
+            setImages((currentImages) => {
+              const nextImages = [...currentImages]
+              if (nextImages[index]) {
+                nextImages[index] = { 
+                  ...nextImages[index], 
+                  resolvedSrc: 'https://placehold.co/600?text=No+Image+Found', 
+                  isPending: false 
+                }
+              }
+              return nextImages
+            })
+            if (index === 0) setImagesLoading(false)
+          }
+        })
+
       } catch (err) {
-        console.error("Error loading product details", err)
+        console.error("Error running item pipeline process details:", err)
         toast.error("Could not load product details")
         navigate('/products')
-      } finally {
-        setLoading(false)
       }
     }
-    fetchProductData()
+
+    fetchProductDataImmediate()
+
+    return () => {
+      activeSession = false
+    }
   }, [id, navigate])
 
   const handleNext = useCallback(() => {
@@ -81,8 +180,8 @@ export default function ProductDetail() {
   }, [images.length])
 
   useEffect(() => {
-    if (images.length <= 1 || isHovered) {
-      if (timerRef.current) clearInterval(timerRef.current)
+    if (images.length <= 1 || isHovered || imagesLoading) {
+      if (timerRef.current) clearTimeout(timerRef.current)
       return
     }
 
@@ -100,7 +199,7 @@ export default function ProductDetail() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [images.length, handleNext, isHovered])
+  }, [images.length, handleNext, isHovered, imagesLoading])
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -119,6 +218,14 @@ export default function ProductDetail() {
     }
   }
 
+  const formatDetailPrice = (priceValue) => {
+    const numericPrice = Number(priceValue || 0);
+    if (numericPrice % 1 === 0) {
+      return numericPrice.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    return numericPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   if (loading) return (
     <div className={styles.loadWrap}>
       <div className={styles.loadSpinner} />
@@ -129,6 +236,7 @@ export default function ProductDetail() {
 
   const productName = product.name || product.productName || 'Untitled Masterpiece'
   const currentImage = images[activeIndex]
+  const isCurrentImagePending = currentImage?.isPending
 
   const sliderVariants = {
     enter: (dir) => ({
@@ -142,8 +250,8 @@ export default function ProductDetail() {
       scale: 1,
       transition: { 
         x: { type: 'spring', stiffness: 45, damping: 15 },
-        opacity: { duration: 0.45, ease: 'linear' },
-        scale: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+        opacity: { duration: 0.35, ease: 'linear' },
+        scale: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
       }
     },
     exit: (dir) => ({
@@ -151,8 +259,8 @@ export default function ProductDetail() {
       opacity: 0,
       scale: 0.98,
       transition: { 
-        x: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-        opacity: { duration: 0.35 }
+        x: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+        opacity: { duration: 0.25 }
       }
     })
   }
@@ -168,31 +276,42 @@ export default function ProductDetail() {
       </nav>
 
       <div className={styles.inner}>
-        
         <div 
           className={styles.gallery}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           <div className={styles.mainImageWrap}>
+            {isCurrentImagePending && (
+              <div className={styles.imageLoaderPlaceholder}>
+                <div className={styles.shimmerWave} />
+              </div>
+            )}
+            
             <AnimatePresence initial={false} custom={direction} mode="popLayout">
-              <motion.img
-                key={currentImage?.id || activeIndex}
-                custom={direction}
-                variants={sliderVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                src={currentImage?.url ? imageEndpoints.getUrl(currentImage.url) : 'https://via.placeholder.com/600?text=No+Image'}
-                alt={productName}
-                className={styles.mainImage}
-                onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/600?text=No+Image'
-                }}
-              />
+              {currentImage && !isCurrentImagePending && (
+                <motion.div
+                  key={currentImage?.id || activeIndex}
+                  custom={direction}
+                  variants={sliderVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className={styles.motionContainer}
+                >
+                  <img 
+                    src={currentImage.resolvedSrc} 
+                    alt={productName} 
+                    className={styles.mainImage}
+                    onError={(e) => {
+                      e.target.src = 'https://placehold.co/600?text=No+Image+Found'
+                    }}
+                  />
+                </motion.div>
+              )}
             </AnimatePresence>
 
-            {images.length > 1 && (
+            {images.length > 1 && !isCurrentImagePending && (
               <>
                 <button 
                   className={`${styles.navArrow} ${styles.arrowLeft}`} 
@@ -217,7 +336,7 @@ export default function ProductDetail() {
               </>
             )}
 
-            {images.length > 1 && (
+            {images.length > 1 && !isCurrentImagePending && (
               <div className={styles.playbackIndicator}>
                 {isHovered ? 'PAUSED' : 'AUTO-ROTATION'}
               </div>
@@ -240,32 +359,38 @@ export default function ProductDetail() {
           )}
 
           {images.length > 1 && (
-            <div className={styles.thumbnails}>
-              {images.map((img, idx) => {
-                const isActive = idx === activeIndex
-                return (
-                  <button
-                    key={img.id || idx}
-                    className={`${styles.thumb} ${isActive ? styles.thumbActive : ''}`}
-                    onClick={() => {
-                      setDirection(idx > activeIndex ? 1 : -1)
-                      setActiveIndex(idx)
-                    }}
-                  >
-                    <img
-                      src={imageEndpoints.getUrl(img.url)}
-                      alt=""
-                      className={styles.thumbImg}
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/150?text=Error'
+            <div className={styles.thumbnailsContainer}>
+              <div className={styles.thumbnails}>
+                {images.map((img, idx) => {
+                  const isActive = idx === activeIndex
+                  return (
+                    <button
+                      key={img.id || idx}
+                      className={`${styles.thumb} ${isActive ? styles.thumbActive : ''}`}
+                      onClick={() => {
+                        setDirection(idx > activeIndex ? 1 : -1)
+                        setActiveIndex(idx)
                       }}
-                    />
-                    {img.isMain && (
-                      <span className={styles.mainBadge}>Cover</span>
-                    )}
-                  </button>
-                )
-              })}
+                    >
+                      {img.isPending ? (
+                        <div className={styles.thumbShimmer} />
+                      ) : (
+                        <img
+                          src={img.resolvedSrc}
+                          alt=""
+                          className={styles.thumbImg}
+                          onError={(e) => {
+                            e.target.src = 'https://placehold.co/150?text=Error'
+                          }}
+                        />
+                      )}
+                      {img.isMain && !img.isPending && (
+                        <span className={styles.mainBadge}>Cover</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -277,7 +402,7 @@ export default function ProductDetail() {
             <div className={styles.priceRow}>
               <span className={styles.currency}>₱</span>
               <span className={styles.price}>
-                {Number(product.price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                {formatDetailPrice(product.price)}
               </span>
             </div>
           </div>

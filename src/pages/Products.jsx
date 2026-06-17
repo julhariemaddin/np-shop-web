@@ -1,8 +1,41 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { productEndpoints, categoryEndpoints } from '../api/endpoints'
+import { productEndpoints, categoryEndpoints, imageEndpoints } from '../api/endpoints'
 import styles from './Products.module.css'
+
+// Global client-side Cache Engine ensuring a strict maximum allocation of 50 assets
+const BLOB_IMAGE_CACHE = {
+  maxSize: 50,
+  // Using a Map layout because it naturally preserves original insertion order for key tracking
+  store: new Map(),
+
+  get(key) {
+    if (!this.store.has(key)) return null;
+    
+    // Refresh the usage priority state by moving it to the end of the Map
+    const value = this.store.get(key);
+    this.store.delete(key);
+    this.store.set(key, value);
+    return value;
+  },
+
+  set(key, value) {
+    if (this.store.has(key)) {
+      this.store.delete(key);
+    } else if (this.store.size >= this.maxSize) {
+      // Evict and clear memory footprint for the oldest inserted cache asset
+      const oldestKey = this.store.keys().next().value;
+      const oldestValue = this.store.get(oldestKey);
+      
+      if (oldestValue && oldestValue.startsWith('blob:')) {
+        URL.revokeObjectURL(oldestValue);
+      }
+      this.store.delete(oldestKey);
+    }
+    this.store.set(key, value);
+  }
+};
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value)
@@ -11,6 +44,74 @@ function useDebounce(value, delay) {
     return () => clearTimeout(timer)
   }, [value, delay])
   return debounced
+}
+
+// Internal individual component to safely process, manage, and animate Blob loading states
+function ProductImage({ product, targetImage, displayTitle }) {
+  const [imgSrc, setImgSrc] = useState('')
+  const [imageLoading, setImageLoading] = useState(true)
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+    setImageLoading(true)
+
+    if (targetImage && targetImage !== 'placeholder.jpg') {
+      // Check memory cache registers before issuing an external asynchronous request
+      const cachedUrl = BLOB_IMAGE_CACHE.get(targetImage);
+
+      if (cachedUrl) {
+        setImgSrc(cachedUrl);
+        setImageLoading(false);
+      } else {
+        imageEndpoints.fetchBlobUrl(targetImage)
+          .then((resolvedUrl) => {
+            if (!isCurrentRequest) {
+              // If component changed goals mid-request, wipe the unneeded blob assignment
+              if (resolvedUrl && resolvedUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(resolvedUrl);
+              }
+              return;
+            }
+            
+            BLOB_IMAGE_CACHE.set(targetImage, resolvedUrl);
+            setImgSrc(resolvedUrl);
+            setImageLoading(false);
+          })
+          .catch(() => {
+            if (isCurrentRequest) {
+              setImgSrc('https://placehold.co/300?text=No+Image+Found');
+              setImageLoading(false);
+            }
+          });
+      }
+    } else {
+      setImgSrc('https://placehold.co/300?text=No+Image+Found')
+      setImageLoading(false)
+    }
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [targetImage])
+
+  return (
+    <div className={styles.imageInnerContainer}>
+      {imageLoading && (
+        <div className={styles.imageLoaderPlaceholder}>
+          <div className={styles.shimmerWave} />
+        </div>
+      )}
+      <img 
+        src={imgSrc || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} 
+        alt={displayTitle} 
+        className={`${styles.productImg} ${imageLoading ? styles.imgHidden : styles.imgVisible}`}
+        loading="lazy"
+        onError={(e) => {
+          e.target.src = 'https://placehold.co/300?text=No+Image+Found'
+        }}
+      />
+    </div>
+  )
 }
 
 export default function Products() {
@@ -81,12 +182,10 @@ export default function Products() {
     inputRef.current?.focus()
   }
 
-  // Safely strips regex characters of their execution value
   const highlightText = (text, searchWord) => {
     if (!searchWord || !searchWord.trim() || !text) return text
     const cleanSearch = searchWord.trim()
     
-    // Escape standard regular expression token bounds safely
     const escapedSearch = cleanSearch.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
     const parts = text.split(new RegExp(`(${escapedSearch})`, 'gi'))
     
@@ -113,6 +212,14 @@ export default function Products() {
     
     if (product.imageUrl) return product.imageUrl
     return 'placeholder.jpg'
+  }
+
+  const formatProductPrice = (priceValue) => {
+    const numericPrice = Number(priceValue || 0);
+    if (numericPrice % 1 === 0) {
+      return numericPrice.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    return numericPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   return (
@@ -155,28 +262,30 @@ export default function Products() {
       <div className={styles.body}>
         <aside className={styles.sidebar}>
           <p className={styles.sidebarLabel}>Categories</p>
-          <ul className={styles.categoryList}>
-            <li>
-              <button
-                className={`${styles.catItem} ${!selectedCategory || isSearching ? styles.catActive : ''}`}
-                onClick={() => setSelectedCategory(null)}
-                disabled={isSearching}
-              >
-                All Masterpieces
-              </button>
-            </li>
-            {categories.map((cat) => (
-              <li key={cat.id}>
+          <div className={styles.categoryScrollContainer}>
+            <ul className={styles.categoryList}>
+              <li>
                 <button
-                  className={`${styles.catItem} ${selectedCategory === cat.id && !isSearching ? styles.catActive : ''}`}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`${styles.catItem} ${!selectedCategory || isSearching ? styles.catActive : ''}`}
+                  onClick={() => setSelectedCategory(null)}
                   disabled={isSearching}
                 >
-                  {cat.categoryName}
+                  All Masterpieces
                 </button>
               </li>
-            ))}
-          </ul>
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <button
+                    className={`${styles.catItem} ${selectedCategory === cat.id && !isSearching ? styles.catActive : ''}`}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    disabled={isSearching}
+                  >
+                    {cat.categoryName}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </aside>
 
         <section className={styles.main}>
@@ -238,14 +347,10 @@ export default function Products() {
                       onClick={() => navigate(`/products/${product.id}`)}
                     >
                       <div className={styles.productImgWrap}>
-                        <img 
-                          src={`${import.meta.env.VITE_API_BASE_URL}/image/${targetImage}`} 
-                          alt={displayTitle} 
-                          className={styles.productImg}
-                          loading="lazy"
-                          onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/300?text=No+Image+Found'
-                          }}
+                        <ProductImage 
+                          product={product} 
+                          targetImage={targetImage} 
+                          displayTitle={displayTitle} 
                         />
                       </div>
                       <div className={styles.productBody}>
@@ -257,7 +362,7 @@ export default function Products() {
                         </p>
                         <div className={styles.productFooter}>
                           <span className={styles.productPrice}>
-                            Public Price: ₱{Number(product.price || 0).toFixed(2)}
+                            ₱{formatProductPrice(product.price)}
                           </span>
                           <button 
                             className={styles.exploreBtn}

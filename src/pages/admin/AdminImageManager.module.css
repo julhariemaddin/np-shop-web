@@ -8,43 +8,98 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);
+  gap: var(--space-4);
 }
 
-.breadcrumb {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: var(--space-2);
-  transition: color var(--duration-fast);
+.headerInfoWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
 }
-.breadcrumb:hover { color: var(--text-primary); }
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: var(--space-3);
+  transition: all var(--duration-fast) ease;
+}
+
+.backButton svg {
+  transition: transform var(--duration-fast) ease;
+}
+
+.backButton:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong, #888);
+  background: var(--bg-subtle, #f9f9f9);
+}
+
+.backButton:hover svg {
+  transform: translateX(-2px);
+}
 
 .heading {
-  font-family: var(--font-display);
+  font-family: var(--font-display), sans-serif;
   font-size: 24px;
-  font-weight: 400;
-  font-style: italic;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.counterText {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: var(--space-2) 0 0 0;
+  font-weight: 500;
+}
+
+.counterMaxed {
+  color: var(--error, #e53e3e);
+  font-weight: 600;
 }
 
 .uploadLabel {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 20px;
-  background: var(--text-primary);
-  color: var(--bg-base);
+  background: var(--text-primary, #121212);
+  color: var(--bg-base, #ffffff);
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 150ms;
+  border-radius: 4px;
+  transition: all 150ms ease;
   position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-.uploadLabel:hover { opacity: 0.8; }
+.uploadLabel:hover:not(.uploadDisabled) { opacity: 0.9; }
+
+/* Disabled Limit UI Form State Modifier Styles */
+.uploadDisabled {
+  background: var(--border, #e2e8f0);
+  color: var(--text-muted, #a0aec0);
+  cursor: not-allowed;
+  border: 1px solid transparent;
+}
 
 .uploadInput {
   position: absolute;
@@ -52,6 +107,11 @@
   opacity: 0;
   cursor: pointer;
   width: 100%;
+}
+
+.uploadDisabled .uploadInput {
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .uploadSpinner {
@@ -81,6 +141,7 @@
   aspect-ratio: 1;
   overflow: hidden;
   border: 1px solid var(--border);
+  border-radius: 4px;
   background: var(--bg-subtle);
 }
 
@@ -92,22 +153,24 @@
 
 .mainBadge {
   position: absolute;
-  top: 6px;
-  left: 6px;
-  background: var(--accent);
-  color: var(--bg-base);
+  top: 8px;
+  left: 8px;
+  background: var(--accent, #121212);
+  color: var(--bg-base, #ffffff);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 2px 6px;
+  padding: 3px 8px;
+  border-radius: 2px;
 }
 
 .mainNote {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   text-align: center;
   padding: var(--space-2) 0;
+  margin: 0;
 }
 
 .loadWrap {
@@ -121,14 +184,30 @@
   width: 28px;
   height: 28px;
   border: 2px solid var(--border);
-  border-top-color: var(--accent);
+  border-top-color: var(--accent, #121212);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-@media (max-width: 640px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 768px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 576px) {
+  .topBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .uploadLabel {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+  }
+
+  .grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
   .page { padding: var(--space-5) var(--space-4); }
 }

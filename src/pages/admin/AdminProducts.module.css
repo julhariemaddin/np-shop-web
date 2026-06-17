@@ -8,57 +8,85 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);
 }
 
-.breadcrumb {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: var(--space-2);
-  transition: color var(--duration-fast);
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: var(--space-3);
+  transition: all var(--duration-fast) ease;
 }
-.breadcrumb:hover { color: var(--text-primary); }
+
+.backButton svg {
+  transition: transform var(--duration-fast) ease;
+}
+
+.backButton:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong, #888);
+  background: var(--bg-subtle, #f9f9f9);
+}
+
+.backButton:hover svg {
+  transform: translateX(-2px);
+}
 
 .heading {
-  font-family: var(--font-display);
+  font-family: var(--font-display), sans-serif;
   font-size: 28px;
-  font-weight: 400;
-  font-style: italic;
+  font-weight: 500;
+  margin: 0;
 }
 
 .table {
   border: 1px solid var(--border);
+  border-radius: 4px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .tableHead {
   display: grid;
-  grid-template-columns: 1fr 130px 80px 260px;
+  grid-template-columns: 1fr 140px 120px 240px;
   padding: var(--space-3) var(--space-4);
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
+.actionsHeadLabel {
+  text-align: right;
+}
+
 .tableRow {
   display: grid;
-  grid-template-columns: 1fr 130px 80px 260px;
+  grid-template-columns: 1fr 140px 120px 240px;
   align-items: center;
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border);
   background: var(--bg-surface);
-  transition: background var(--duration-fast);
+  cursor: pointer;
+  transition: background var(--duration-fast) ease;
 }
 
 .tableRow:last-child { border-bottom: none; }
-.tableRow:hover { background: var(--bg-subtle); }
+.tableRow:hover { background: var(--bg-subtle, #fafafa); }
 
 .productCell {
   display: flex;
@@ -72,11 +100,26 @@
   height: 40px;
   object-fit: cover;
   border: 1px solid var(--border);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.thumbFallback {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .productName {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -84,23 +127,32 @@
 }
 
 .priceCell {
-  font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-primary);
 }
 
 .stockCell {
   font-size: 13px;
-  color: var(--text-primary);
-  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-.outOfStock { color: var(--error) !important; }
+.outOfStock { 
+  color: var(--error) !important; 
+  font-weight: 500;
+}
 
 .actions {
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;
+}
+
+.emptyStateContainer {
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  background: var(--bg-surface);
 }
 
 .loadWrap {
@@ -113,7 +165,7 @@
   width: 28px;
   height: 28px;
   border: 2px solid var(--border);
-  border-top-color: var(--accent);
+  border-top-color: var(--accent, #121212);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -125,17 +177,95 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
-  margin-top: var(--space-5);
+  margin-top: var(--space-6);
 }
 
 .pageInfo {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
+/* Fluid Responsive Breakpoints */
+@media (max-width: 900px) {
+  .tableHead { grid-template-columns: 1fr 120px 100px 220px; }
+  .tableRow { grid-template-columns: 1fr 120px 100px 220px; }
+}
+
+/* Clean, Stacked Mobile view updates */
 @media (max-width: 768px) {
-  .tableHead { grid-template-columns: 1fr 80px 80px; }
-  .tableHead span:last-child { display: none; }
-  .tableRow { grid-template-columns: 1fr 80px 80px; }
-  .actions { display: none; }
+  .page {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .topBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .topBar > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Transform table grid to stack neatly on handheld views */
+  .tableHead {
+    display: none; /* Hide headings on mobile completely */
+  }
+
+  .tableRow {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .productCell {
+    width: 100%;
+  }
+
+  .productName {
+    font-size: 15px;
+    white-space: normal; /* Allow text wrapping on tight screens */
+  }
+
+  /* Group stock and prices inline side-by-side */
+  .priceCell, .stockCell {
+    font-size: 13px;
+    display: inline-flex;
+    margin-right: var(--space-4);
+  }
+
+  .priceCell::before {
+    content: "Price: ";
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+
+  .stockCell::before {
+    content: "Stock: ";
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+
+  /* Make actions row visible and easy to tap on mobile layouts */
+  .actions {
+    display: flex;
+    justify-content: flex-start;
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-3);
+    margin-top: var(--space-1);
+    gap: var(--space-2);
+  }
+
+  /* Standardize mobile action button sizing dimensions */
+  .actions :global(button), .actions button {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 8px var(--space-3);
+    font-size: 12px;
+  }
 }

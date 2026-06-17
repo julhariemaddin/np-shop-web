@@ -13,19 +13,43 @@ export default function AdminImageManager() {
   const [deletingId, setDeletingId] = useState(null)
 
   const fetchProduct = async () => {
-    const { data } = await productEndpoints.getById(id)
-    setProduct(data)
+    try {
+      const { data } = await productEndpoints.getById(id)
+      setProduct(data)
+    } catch {
+      toast.error('Failed to load product image references')
+    }
   }
 
-  useEffect(() => { fetchProduct() }, [id])
+  useEffect(() => { 
+    fetchProduct() 
+  }, [id])
+
+  if (!product) return (
+    <div className={styles.loadWrap}><div className={styles.spinner} /></div>
+  )
+
+  const mainId = product.mainImage?.id
+  const safeImagesArray = product.images || []
+  const allImages = [product.mainImage, ...safeImagesArray.filter((i) => i.id !== mainId)].filter(Boolean)
+  
+  // Strict maximum image count limit evaluation boundary
+  const isMaxLimitReached = allImages.length >= 5
 
   const handleUpload = async (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files?.[0]
     if (!file) return
+
+    // Explicit functional double-check safeguard logic
+    if (isMaxLimitReached) {
+      toast.error('Maximum limit reached. You can only attach up to 5 images per product.')
+      return
+    }
+
     setUploading(true)
     try {
       await imageEndpoints.upload(id, file)
-      toast.success('Image uploaded')
+      toast.success('Image uploaded successfully')
       fetchProduct()
     } catch {
       toast.error('Upload failed')
@@ -36,11 +60,11 @@ export default function AdminImageManager() {
   }
 
   const handleDeleteImage = async (imageId) => {
-    if (!confirm('Delete this image?')) return
+    if (!confirm('Are you sure you want to permanently delete this image?')) return
     setDeletingId(imageId)
     try {
       await imageEndpoints.delete(imageId)
-      toast.success('Image deleted')
+      toast.success('Image removed successfully')
       fetchProduct()
     } catch {
       toast.error('Failed to delete image')
@@ -49,24 +73,29 @@ export default function AdminImageManager() {
     }
   }
 
-  if (!product) return (
-    <div className={styles.loadWrap}><div className={styles.spinner} /></div>
-  )
-
-  const mainId = product.mainImage?.id
-  const allImages = [product.mainImage, ...product.images.filter((i) => i.id !== mainId)].filter(Boolean)
-
   return (
     <div className={styles.page}>
       <div className={styles.inner}>
         <div className={styles.topBar}>
-          <div>
-            <Link to="/admin/products" className={styles.breadcrumb}>← Products</Link>
+          <div className={styles.headerInfoWrapper}>
+            <Link to="/admin/products" className={styles.backButton}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Products List</span>
+            </Link>
             <h1 className={styles.heading}>Images — {product.name}</h1>
+            <p className={`${styles.counterText} ${isMaxLimitReached ? styles.counterMaxed : ''}`}>
+              {allImages.length} / 5 Images {isMaxLimitReached && '(Max Limit Reached)'}
+            </p>
           </div>
-          <label className={styles.uploadLabel}>
+          
+          <label className={`${styles.uploadLabel} ${isMaxLimitReached ? styles.uploadDisabled : ''}`}>
             {uploading ? (
               <span className={styles.uploadSpinner} />
+            ) : isMaxLimitReached ? (
+              <>Limit Reached</>
             ) : (
               <>+ Add image</>
             )}
@@ -74,7 +103,7 @@ export default function AdminImageManager() {
               type="file"
               accept="image/*"
               onChange={handleUpload}
-              disabled={uploading}
+              disabled={uploading || isMaxLimitReached}
               className={styles.uploadInput}
             />
           </label>
@@ -101,7 +130,7 @@ export default function AdminImageManager() {
                     <span className={styles.mainBadge}>Main</span>
                   )}
                 </div>
-                {img.id !== mainId && (
+                {img.id !== mainId ? (
                   <Button
                     variant="danger"
                     size="sm"
@@ -111,8 +140,7 @@ export default function AdminImageManager() {
                   >
                     Delete
                   </Button>
-                )}
-                {img.id === mainId && (
+                ) : (
                   <p className={styles.mainNote}>Cannot delete main image</p>
                 )}
               </motion.div>

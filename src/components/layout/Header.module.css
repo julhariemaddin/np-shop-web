@@ -214,11 +214,19 @@
   cursor: pointer;
   border: none;
   background: none;
+  box-sizing: border-box;
 }
 
 .dropItem:hover {
   color: var(--text-primary);
   background: var(--bg-subtle, #f5f5f5);
+}
+
+/* Unique identifier hook to handle mobile admin links specifically */
+.mobileAdminDropdownLink {
+  display: none; /* Hidden on desktop screens */
+  color: var(--accent, #121212);
+  font-weight: 600;
 }
 
 .logoutItem {
@@ -235,7 +243,7 @@
   margin: 6px 4px;
 }
 
-/* Public Fallback Credentials Controllers */
+/* Public Fallback Credentials Credentials Controllers */
 .authLinks {
   display: flex;
   align-items: center;
@@ -278,5 +286,15 @@
 }
 
 @media (max-width: 640px) {
+  /* Hides the desktop Admin link on small tablets and mobile devices */
+  .desktopAdminLink {
+    display: none !important;
+  }
+  
+  /* Displays the fallback Admin link inside the user profile dropdown element */
+  .mobileAdminDropdownLink {
+    display: block;
+  }
+
   .nav { display: none; }
 }

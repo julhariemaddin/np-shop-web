@@ -10,9 +10,20 @@ export function PayPalSuccess() {
 
   useEffect(() => {
     const token = params.get('token')
-    if (!token) { setStatus('error'); return }
+    if (!token) { 
+      setStatus('error')
+      return 
+    }
+
     paypalEndpoints.capturePayment(token)
-      .then(() => setStatus('success'))
+      .then((res) => {
+        // Validating the paymentStatus returned from the backend
+        if (res.data?.paymentStatus === 'COMPLETED') {
+          setStatus('success')
+        } else {
+          setStatus('error')
+        }
+      })
       .catch(() => setStatus('error'))
   }, [params])
 
@@ -56,7 +67,9 @@ export function PayPalCancel() {
 
   useEffect(() => {
     const token = params.get('token')
-    if (token) paypalEndpoints.cancelPayment(token).catch(() => {})
+    if (token) {
+      paypalEndpoints.cancelPayment(token).catch(() => {})
+    }
   }, [params])
 
   return (

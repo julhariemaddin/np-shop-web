@@ -76,6 +76,7 @@
   color: var(--accent);
   font-weight: 500;
   margin-top: var(--space-2);
+  text-decoration: none;
 }
 
 .link:hover { text-decoration: underline; }

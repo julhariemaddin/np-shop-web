@@ -6,7 +6,6 @@ import { useTheme } from '../../context/ThemeContext'
 import useCartStore from '../../hooks/useCart'
 import styles from './Header.module.css'
 
-// Icons remain the same as your original code
 const SunIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
@@ -65,7 +64,7 @@ export default function Header() {
 
         <nav className={styles.nav}>
           <Link to="/products" className={styles.navLink}>Shop</Link>
-          {isAdmin && <Link to="/admin" className={styles.navLink}>Admin</Link>}
+          {isAdmin && <Link to="/admin" className={`${styles.navLink} ${styles.desktopAdminLink}`}>Admin</Link>}
         </nav>
 
         <div className={styles.actions}>
@@ -104,6 +103,13 @@ export default function Header() {
                     </div>
                     <div className={styles.dropDivider} />
                     
+                    {/* Admin Dashboard Navigation Shortcut inside User Dropdown (Visible on Mobile views) */}
+                    {isAdmin && (
+                      <Link to="/admin" className={`${styles.dropItem} ${styles.mobileAdminDropdownLink}`} onClick={() => setMenuOpen(false)}>
+                        Admin Control Center
+                      </Link>
+                    )}
+                    
                     <Link to="/profile" className={styles.dropItem} onClick={() => setMenuOpen(false)}>Profile Overview</Link>
                     
                     {/* Only show Orders if NOT admin */}
@@ -112,7 +118,7 @@ export default function Header() {
                     )}
                     
                     <div className={styles.dropDivider} />
-                    <button className={`${styles.dropItem}`} onClick={handleLogout}>Sign out session</button>
+                    <button className={`${styles.dropItem} ${styles.logoutItem}`} onClick={handleLogout}>Sign out session</button>
                   </motion.div>
                 )}
               </AnimatePresence>

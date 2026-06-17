@@ -35,19 +35,18 @@
 /* ─── Header Strip ─── */
 .strip {
   border-bottom: 1px solid var(--border);
-  padding: 32px 0;
+  padding: clamp(20px, 4vw, 32px) 0;
   background: var(--bg-surface);
 }
 
 .stripInner {
   max-width: 1360px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 clamp(16px, 3vw, 32px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
-  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .eyebrow {
@@ -62,7 +61,7 @@
 
 .heroTitle {
   margin: 0;
-  font-size: clamp(28px, 3.5vw, 40px);
+  font-size: clamp(24px, 4vw, 40px);
   font-weight: 950;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -71,41 +70,66 @@
 .navActions {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
 }
 
-.navLink {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: color 0.12s ease;
-}
-
-.navLink:hover {
+.navBtnShop {
+  background: transparent;
   color: var(--text-primary);
+  border: 2px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 0px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.navBtnShop:hover {
+  border-color: var(--text-primary);
+  background: var(--bg-subtle);
+}
+
+.navBtnSignIn {
+  background: var(--text-primary);
+  color: var(--bg-base);
+  border: 2px solid var(--text-primary);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 0px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.navBtnSignIn:hover {
+  background: var(--neon-glow-secondary);
+  border-color: var(--neon-glow-secondary);
+  color: #000000;
 }
 
 /* ─── Structural Workspace Layout ─── */
 .body {
   max-width: 1360px;
   margin: 0 auto;
-  padding: 40px 32px 80px;
+  padding: clamp(20px, 4vw, 40px) clamp(16px, 3vw, 32px) clamp(40px, 8vw, 80px);
   display: grid;
   grid-template-columns: 220px 1fr;
-  gap: 48px;
+  gap: clamp(24px, 4vw, 48px);
   align-items: start;
 }
 
-/* ─── Monochrome Minimalist Sidebar ─── */
+/* ─── Sidebar Column ─── */
 .sidebar {
   position: sticky;
   top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .sidebarLabel {
@@ -138,6 +162,9 @@
   border: 1px dashed var(--border);
   padding: 8px 12px;
   letter-spacing: 0.05em;
+  align-self: flex-start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ─── Main Content Section ─── */
@@ -145,7 +172,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: clamp(24px, 4vw, 32px);
 }
 
 .topBar {
@@ -159,7 +186,7 @@
 
 .resultLabel {
   margin: 0;
-  font-size: 18px;
+  font-size: clamp(15px, 2vw, 18px);
   font-weight: 950;
   letter-spacing: -0.01em;
 }
@@ -172,12 +199,11 @@
   text-transform: uppercase;
 }
 
-/* ─── Horizontal Laser Sweep Core Effect (Static) ─── */
 .horizontalLaserBeam {
-  display: none; /* Disabled globally */
+  display: none;
 }
 
-/* ─── Thick, Sharp, Boxxy Large Monolith Card ─── */
+/* ─── Large Showcase Card ─── */
 .monolithCard {
   background: var(--bg-surface);
   border: 2px solid var(--border);
@@ -204,7 +230,7 @@
 }
 
 .monolithBody {
-  padding: 32px;
+  padding: clamp(20px, 4vw, 32px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -212,7 +238,7 @@
 
 .monolithTitle {
   margin: 0 0 12px;
-  font-size: 22px;
+  font-size: clamp(18px, 2.5vw, 22px);
   font-weight: 950;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -232,21 +258,23 @@
   border-top: 1px dashed var(--border);
   padding-top: 16px;
   margin-top: auto;
+  gap: 16px;
 }
 
 .monolithStatus {
   font-size: 10px;
   font-weight: 800;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .textLink {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-/* Monolith Hover Triggers (Animation Removed) */
 .monolithCard:hover {
   border-color: var(--text-primary);
 }
@@ -256,11 +284,11 @@
   transform: scale(1.02);
 }
 
-/* ─── Thick, Sharp, Smaller Boxxy Cards Grid ─── */
+/* ─── Grid Cards ─── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: clamp(16px, 3vw, 24px);
 }
 
 .productCard {
@@ -342,6 +370,7 @@
   border-radius: 0px;
   cursor: pointer;
   transition: background-color 0.1s ease;
+  white-space: nowrap;
 }
 
 .exploreBtn:hover {
@@ -349,21 +378,19 @@
   color: #000000;
 }
 
-/* ─── Small Card Hover Interactions (Animation Removed) ─── */
-.productCardActive {
+.productCard:hover {
   border-color: var(--text-primary);
 }
 
-.productCardActive .productImg {
+.productCard:hover .productImg {
   filter: grayscale(0) contrast(1);
   transform: scale(1.03);
 }
 
-/* ─── Media Adaptations ─── */
+/* ─── Responsive Breakdown ─── */
 @media (max-width: 991px) {
   .body {
     grid-template-columns: 1fr;
-    gap: 32px;
   }
   .sidebar {
     position: static;
@@ -377,21 +404,24 @@
   }
 }
 
-@media (max-width: 600px) {
-  .stripInner, .body {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
+@media (max-width: 540px) {
   .stripInner {
     flex-direction: column;
-    align-items: stretch;
-    gap: 20px;
-  }
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    align-items: flex-start;
     gap: 16px;
   }
-  .monolithBody {
-    padding: 20px;
+  
+  .navActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .productFooter {
+    flex-direction: row;
+    align-items: center;
   }
 }

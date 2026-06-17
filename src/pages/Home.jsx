@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import styles from './Home.module.css'
 
 const categories = [
@@ -8,13 +7,13 @@ const categories = [
     id: 'cat-1',
     title: 'Daily Essentials',
     img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80',
-    tag: 'ESSENTIALS'
+    tag: 'EVERYDAY'
   },
   {
     id: 'cat-2',
     title: 'Gift Picks',
     img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80',
-    tag: 'LIMITED'
+    tag: 'SPECIAL'
   },
   {
     id: 'cat-3',
@@ -25,8 +24,8 @@ const categories = [
 ]
 
 export default function Home() {
-  const [hoveredCard, setHoveredCard] = useState(null)
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
 
   return (
     <div className={styles.page}>
@@ -35,15 +34,21 @@ export default function Home() {
       <div className={styles.strip}>
         <div className={styles.stripInner}>
           <div className={styles.stripLeft}>
-            <span className={styles.eyebrow}>System Interface v1.0</span>
+            <span className={styles.eyebrow}>Online Store</span>
             <h1 className={styles.heroTitle}>NP SHOP</h1>
           </div>
           
           <div className={styles.navActions}>
-            <Link to="/products" className={styles.navLink}>Catalog</Link>
-            <button onClick={() => navigate('/register')} className={styles.exploreBtn}>
-              Join Vault
+            <button onClick={() => navigate('/products')} className={styles.navBtnShop}>
+              Shop
             </button>
+            
+            {/* This button only shows up if the user is NOT signed in */}
+            {!isAuthenticated && (
+              <button onClick={() => navigate('/login')} className={styles.navBtnSignIn}>
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -53,26 +58,26 @@ export default function Home() {
         
         {/* ─── Sidebar Branding Column ─── */}
         <aside className={styles.sidebar}>
-          <p className={styles.sidebarLabel}>Manifesto</p>
+          <p className={styles.sidebarLabel}>About Us</p>
           <div className={styles.manifestoFrame}>
             <p className={styles.manifestoText}>
-              A raw, calculated digital interface built for exceptional items. No fluff. Instant browsing. Zero radius architecture.
+              We sell high-quality, long-lasting items. Simple browsing, fast checkout, and no distractions.
             </p>
           </div>
           
           <div className={styles.monochromeBadge}>
-            STATUS // SECURE_NODE
+            SECURE SHOPPING
           </div>
         </aside>
 
         {/* ─── Main Content Grid Matrix ─── */}
         <section className={styles.main}>
           <div className={styles.topBar}>
-            <p className={styles.resultLabel}>CURATED VAULTS</p>
-            <span className={styles.countBadge}>{categories.length} Indexes</span>
+            <p className={styles.resultLabel}>OUR COLLECTIONS</p>
+            <span className={styles.countBadge}>{categories.length} Sections</span>
           </div>
 
-          {/* Featured Monolith Spire Card */}
+          {/* Featured Large Card */}
           <div 
             className={styles.monolithCard}
             onClick={() => navigate('/products')}
@@ -87,27 +92,25 @@ export default function Home() {
             </div>
             <div className={styles.monolithBody}>
               <span className={styles.eyebrow} style={{ color: 'var(--neon-glow-secondary)' }}>
-                EDITIONS / VOL 4
+                SPECIAL SELECTION
               </span>
-              <h2 className={styles.monolithTitle}>PREMIUM LINEUP ARCHITECTURE</h2>
+              <h2 className={styles.monolithTitle}>PREMIUM ITEMS</h2>
               <p className={styles.monolithDesc}>
-                Handcrafted hardware components, raw materials, and tactical desktop items configured for high-performance stations.
+                Great items, raw materials, and clean desktop tools made for your home or work setup.
               </p>
               <div className={styles.monolithFooter}>
-                <span className={styles.monolithStatus}>SYSTEM // DATA_ACCESS</span>
-                <span className={styles.textLink}>UNLOCK SPIRE →</span>
+                <span className={styles.monolithStatus}>STATUS // READY</span>
+                <span className={styles.textLink}>SEE ALL →</span>
               </div>
             </div>
           </div>
 
-          {/* Sub-vault Categories Grid Matrix */}
+          {/* Product Categories Grid */}
           <div className={styles.grid}>
             {categories.map((cat, index) => (
               <div 
                 key={cat.id}
-                className={`${styles.productCard} ${hoveredCard === cat.id ? styles.productCardActive : ''}`}
-                onMouseEnter={() => setHoveredCard(cat.id)}
-                onMouseLeave={() => setHoveredCard(null)}
+                className={styles.productCard}
                 onClick={() => navigate('/products')}
               >
                 <div className={styles.productImgWrap}>
@@ -115,9 +118,8 @@ export default function Home() {
                     src={cat.img} 
                     alt={cat.title} 
                     className={styles.productImg} 
-                    loading="lazy" 
+                    loading="lazy"
                   />
-                  {/* The Request Horizontal Laser Line Animation Overlay */}
                   <div className={styles.horizontalLaserBeam} />
                 </div>
                 
@@ -128,7 +130,7 @@ export default function Home() {
                   <h3 className={styles.productTitle}>{cat.title}</h3>
                   
                   <div className={styles.productFooter}>
-                    <span className={styles.productPrice}>VIEW COLLECTION</span>
+                    <span className={styles.productPrice}>VIEW PRODUCTS</span>
                     <button className={styles.exploreBtn}>Explore</button>
                   </div>
                 </div>
