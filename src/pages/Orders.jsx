@@ -6,7 +6,6 @@ import { orderEndpoints, paypalEndpoints, productEndpoints } from '../api/endpoi
 import Button from '../components/common/Button'
 import styles from './Orders.module.css'
 
-// 1. Explicitly Map Your Backend Order Statuses
 const orderStatusStyles = {
   PENDING_PAYMENT: 'pending',
   CONFIRMED: 'processing',
@@ -17,7 +16,6 @@ const orderStatusStyles = {
   CANCELLED: 'cancelled',
 }
 
-// 2. Explicitly Map Your Backend Payment Statuses
 const paymentStatusStyles = {
   PAID: 'completed',
   FAILED: 'cancelled',
@@ -37,7 +35,6 @@ export default function Orders() {
   const [expandedId, setExpandedId] = useState(null)
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Handle PayPal return URLs
   useEffect(() => {
     const success = searchParams.get('success')
     const cancelled = searchParams.get('cancelled')
@@ -113,6 +110,7 @@ export default function Orders() {
     setExpandedId((prevId) => (prevId === id ? null : id))
   }
 
+  // --- ACTUAL LOADING STATE ---
   if (loading) {
     return (
       <div className={styles.loadWrap}>
@@ -122,7 +120,8 @@ export default function Orders() {
     )
   }
 
-  if (!orders.length) {
+  // --- ACTUAL EMPTY STATE ---
+  if (!orders || orders.length === 0) {
     return (
       <div className={styles.empty}>
         <p className={styles.emptyTitle}>No orders yet</p>
@@ -147,14 +146,11 @@ export default function Orders() {
         <div className={styles.list}>
           {orders.map((order, i) => {
             const isExpanded = expandedId === order.orderId
-            
-            // 3. Extract exact statuses safely
-            const orderStatus = order.status || 'PENDING_PAYMENT'
+            const orderStatus = order.status
             const paymentStatus = order.payment?.status || 'PENDING_PAYMENT'
 
-            // 4. Strict Logic for Payment Buttons based on your arrays
             const isPaymentFailed = ['FAILED', 'CANCEL', 'TIMEOUT'].includes(paymentStatus)
-            const isOrderFailed = ['PAYMENT_FAILED', 'PAYMENT_CANCELED'].includes(orderStatus)
+            const isOrderFailed = ['PAYMENT_FAILED', 'PAYMENT_CANCELED', 'CANCELLED'].includes(orderStatus)
             
             const needsRetry = isPaymentFailed || isOrderFailed
             const needsInitialPay = paymentStatus === 'PENDING_PAYMENT' || orderStatus === 'PENDING_PAYMENT'
@@ -168,7 +164,6 @@ export default function Orders() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
               >
-                {/* Outer Card: ORDER STATUS */}
                 <div 
                   className={styles.orderHeader} 
                   onClick={() => toggleAccordion(order.orderId)}
@@ -177,7 +172,7 @@ export default function Orders() {
                     <div className={styles.idWrap}>
                       <p className={styles.orderId}>#{order.orderId.slice(0, 8).toUpperCase()}</p>
                       <span className={`${styles.status} ${styles[orderStatusStyles[orderStatus] || 'pending']}`}>
-                        {orderStatus.replace('_', ' ')}
+                        {orderStatus?.replace('_', ' ') || 'PENDING'}
                       </span>
                     </div>
                     <p className={styles.orderDate}>
@@ -201,7 +196,6 @@ export default function Orders() {
                   </div>
                 </div>
 
-                {/* Expanded Details: PAYMENT STATUS & ITEMS */}
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
@@ -215,8 +209,6 @@ export default function Orders() {
                       <div className={styles.orderItems}>
                         <div className={styles.expandedHeader}>
                           <h4 className={styles.sectionTitle}>Order Items</h4>
-                          
-                          {/* Inner Card: PAYMENT STATUS */}
                           <div className={styles.innerPaymentStatus}>
                             <span className={styles.paymentLabel}>Payment Status:</span>
                             <span className={`${styles.status} ${styles[paymentStatusStyles[paymentStatus] || 'pending']}`}>
@@ -227,7 +219,6 @@ export default function Orders() {
 
                         {order.orderItems.map((item) => {
                           const resolvedName = productNames[item.productId] || `Product ID: ${item.productId.slice(0, 8)}`
-
                           return (
                             <div key={item.id} className={styles.orderItem}>
                               <div className={styles.itemMain}>
@@ -262,8 +253,7 @@ export default function Orders() {
                         )}
                         
                         <div className={styles.secondaryActions}>
-                          {/* Only allow deleting if not already completed/delivered */}
-                          {(orderStatus !== 'DELIVERED' && paymentStatus !== 'PAID') && (
+                          {(orderStatus !== 'DELIVERED' && paymentStatus !== 'PAID' && orderStatus !== 'CANCELLED') && (
                             <Button
                               variant="ghost"
                               size="sm"
