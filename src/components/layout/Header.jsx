@@ -60,7 +60,17 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link to="/" className={styles.logo}>NP<span className={styles.logoDot}>.</span></Link>
+        {/* Logo container utilizing favicon.png with correct routing wrapper */}
+        <Link 
+          to="/" 
+          className={`${styles.logoContainer} ${theme === 'dark' ? styles.logoDark : ''}`}
+        >
+          <img 
+            src="/favicon.png" 
+            alt="NP-Shop Logo" 
+            className={styles.logoImage}
+          />
+        </Link>
 
         <nav className={styles.nav}>
           <Link to="/products" className={styles.navLink}>Shop</Link>

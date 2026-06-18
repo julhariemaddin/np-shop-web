@@ -21,20 +21,27 @@
   justify-content: space-between;
 }
 
-/* Typography Identity Elements */
-.logo {
-  font-family: var(--font-display), sans-serif;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-  text-decoration: none;
+/* Image Identity Wrapper Rules */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  height: 100%;
   flex-shrink: 0;
   user-select: none;
+  text-decoration: none;
 }
 
-.logoDot {
-  color: var(--accent, #121212);
+.logoImage {
+  height: 3.7rem; /* Increased from 34px to make the logo a little bigger */
+  width: auto;
+  display: block;
+  object-fit: contain;
+  transition: filter var(--duration-base) var(--ease);
+}
+
+/* Inverts flat solid black elements perfectly for modern high-contrast Dark Layout configurations */
+.logoDark .logoImage {
+  filter: invert(1) brightness(1.2);
 }
 
 /* Primary Navigation Configuration */
