@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { reviewEndpoints } from '../api/endpoints'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
@@ -112,8 +113,8 @@ export default function ReviewSection({ productId }) {
         View Customer Reviews
       </button>
 
-      {/* Floating Modal Overlay */}
-      {isModalOpen && (
+      {/* Floating Modal Overlay - Wrapped in createPortal to fix Desktop Z-Index issues */}
+      {isModalOpen && createPortal(
         <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             
@@ -199,7 +200,8 @@ export default function ReviewSection({ productId }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
