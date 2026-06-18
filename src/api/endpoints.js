@@ -20,7 +20,7 @@ export const userEndpoints = {
 export const productEndpoints = {
   getAll: (params) => api.get('/product', { params }),
   getById: (id) => api.get(`/product/${id}`),
-  search: (keyword, params) => api.get(`/product/search/${keyword}`, { params }), // Handles Spring Boot's @PathVariable structure
+  search: (keyword, params) => api.get(`/product/search/${keyword}`, { params }),
   create: (formData) =>
     api.post('/product', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   update: (id, formData) =>
@@ -39,23 +39,14 @@ export const imageEndpoints = {
     })
   },
   delete: (imageId) => api.delete(`/image/${imageId}`),
-  
-  // Left intact for backward compatibility if you still use it anywhere
   getUrl: (url) => `${import.meta.env.VITE_API_BASE_URL}/image/${url}`,
-
-  /**
-   * Safe fetch mechanism for ngrok. Downloads the image binary stream 
-   * using the authorized client instance to bypass the abuse warning page.
-   * * @param {string} filename - The clean image filename from your database records
-   * @returns {Promise<string>} An ephemeral client-side Object URL string (blob:)
-   */
   fetchBlobUrl: async (filename) => {
     try {
       const response = await api.get(`/image/${filename}`, { responseType: 'blob' })
       return URL.createObjectURL(response.data)
     } catch (error) {
-      console.error('Failed to resolve ngrok asset pipeline download stream:', error)
-      return '/placeholder.png' // Safe internal fallback path
+      console.error('Failed to resolve asset pipeline:', error)
+      return '/placeholder.png'
     }
   }
 }
@@ -86,6 +77,13 @@ export const orderEndpoints = {
   getAll: (params) => api.get('/order', { params }),
   getById: (id) => api.get(`/order/${id}`),
   delete: (id) => api.delete(`/order/${id}`),
+}
+
+// ─── Reviews ──────────────────────────────────────────────────────────────────
+// ADDED THIS BLOCK BELOW
+export const reviewEndpoints = {
+  post: (data) => api.post('/product/review', data),
+  getReviews: (productId, params) => api.get(`/product/review/${productId}`, { params }),
 }
 
 // ─── PayPal ───────────────────────────────────────────────────────────────────

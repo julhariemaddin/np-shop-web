@@ -64,7 +64,10 @@
   aspect-ratio: 1 / 1;
   background: var(--bg-subtle, #121212);
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow: hidden; /* This prevents children from spilling out during animations */
+  display: flex;    /* Add these to keep it stable */
+  align-items: center;
+  justify-content: center;
 }
 
 .motionContainer {
@@ -420,4 +423,65 @@
   .adminActions > button {
     width: 100%;
   }
+}
+
+/* ALL YOUR EXISTING CSS REMAINS UNCHANGED. Add this at the bottom: */
+
+/* ─── Rating Summary UI ─── */
+.ratingSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  margin-top: 2px;
+}
+
+.starsDisplay {
+  display: flex;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.starFilled {
+  color: #EAB308; /* Premium Gold */
+}
+
+.starEmpty {
+  color: var(--border, #e0e0e0);
+}
+
+.ratingScore {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.ratingDivider {
+  color: var(--border, #e0e0e0);
+  font-weight: 600;
+}
+
+.reviewCount {
+  font-size: 13px;
+  color: var(--text-muted, #757575);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.reviewCount:hover {
+  color: var(--text-primary);
+}
+
+.noReviewsBadge {
+  font-size: 12px;
+  color: var(--text-muted, #757575);
+  background: var(--bg-subtle, #f8f8f8);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border, #e0e0e0);
+  font-weight: 500;
 }

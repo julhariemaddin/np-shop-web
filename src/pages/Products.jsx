@@ -228,8 +228,8 @@ export default function Products() {
       <div className={styles.strip}>
         <div className={styles.stripInner}>
           <div className={styles.stripLeft}>
-            <span className={styles.eyebrow}>Curated Collection</span>
-            <h1 className={styles.heroTitle}>Discover</h1>
+            <span className={styles.eyebrow}>[ verified finds ]</span>
+            <h1 className={styles.heroTitle}>The Drop</h1>
           </div>
           
           <div className={styles.searchWrap}>
@@ -242,7 +242,7 @@ export default function Products() {
               ref={inputRef}
               className={styles.searchInput}
               type="text"
-              placeholder="Search products..."
+              placeholder="Search..."
               value={query}
               onChange={handleQueryChange}
               autoComplete="off"
@@ -270,7 +270,7 @@ export default function Products() {
                   onClick={() => setSelectedCategory(null)}
                   disabled={isSearching}
                 >
-                  All Masterpieces
+                  Everything
                 </button>
               </li>
               {categories.map((cat) => (
@@ -295,10 +295,10 @@ export default function Products() {
                 ? `Results for "${debouncedQuery}"`
                 : selectedCategory
                   ? categories.find((c) => c.id === selectedCategory)?.categoryName
-                  : 'All Products'}
+                  : 'All Items'}
             </p>
             {!loading && (
-              <span className={styles.countBadge}>{filteredProducts.length} Items</span>
+              <span className={styles.countBadge}>{filteredProducts.length} Results</span>
             )}
           </div>
 
@@ -323,8 +323,8 @@ export default function Products() {
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className={styles.empty}>
-              <p className={styles.emptyTitle}>No items matched</p>
-              <p className={styles.emptyHint}>Try refining your current search keywords.</p>
+              <p className={styles.emptyTitle}>Nothing found</p>
+              <p className={styles.emptyHint}>Try a different term.</p>
             </div>
           ) : (
             <AnimatePresence mode="wait">
@@ -337,7 +337,7 @@ export default function Products() {
                 transition={{ duration: 0.18 }}
               >
                 {filteredProducts.map((product) => {
-                  const displayTitle = product.name || product.productName || 'Untitled Product'
+                  const displayTitle = product.name || product.productName || 'Untitled'
                   const targetImage = getProductMainImage(product)
 
                   return (
@@ -358,7 +358,7 @@ export default function Products() {
                           {highlightText(displayTitle, debouncedQuery)}
                         </h3>
                         <p className={styles.productDescription}>
-                          {highlightText(product.description || 'No description available for this item.', debouncedQuery)}
+                          {highlightText(product.description || 'No info provided.', debouncedQuery)}
                         </p>
                         <div className={styles.productFooter}>
                           <span className={styles.productPrice}>
@@ -371,7 +371,7 @@ export default function Products() {
                               navigate(`/products/${product.id}`)
                             }}
                           >
-                            Explore
+                            View
                           </button>
                         </div>
                       </div>
@@ -390,15 +390,15 @@ export default function Products() {
                 disabled={page === 0}
                 onClick={() => setPage((p) => p - 1)}
               >
-                ← Prev
+                &lt; Prev
               </button>
-              <span className={styles.pageInfo}>{page + 1} of {totalPages}</span>
+              <span className={styles.pageInfo}>{page + 1} / {totalPages}</span>
               <button
                 className={styles.pageBtn}
                 disabled={page + 1 >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next →
+                Next &gt;
               </button>
             </div>
           )}

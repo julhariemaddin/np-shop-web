@@ -7,10 +7,11 @@ import { useAuth } from '../context/AuthContext'
 import useCartStore from '../hooks/useCart'
 import Button from '../components/common/Button'
 import styles from './ProductDetail.module.css'
+import ReviewSection from './ReviewSection' 
 
 // ─── Frontend Image Blob Cache Layer ─────────────────────────────────────────
 const IMAGE_BLOB_CACHE = {}
-const CACHE_TTL_MS = 2 * 60 * 1000 // 2 minutes
+const CACHE_TTL_MS = 2 * 60 * 1000 
 
 const getCachedImageOrFetch = async (filename) => {
   const cached = IMAGE_BLOB_CACHE[filename]
@@ -62,14 +63,12 @@ export default function ProductDetail() {
     const fetchProductDataImmediate = async () => {
       try {
         setLoading(true)
-        // 1. Fetch text metadata immediately
         const { data } = await productEndpoints.getById(id)
         
         if (!activeSession) return
         setProduct(data)
         setLoading(false)
 
-        // 2. Normalize image collection schema layout parameters
         let rawImages = []
         let mainImgObj = null
 
@@ -92,7 +91,6 @@ export default function ProductDetail() {
           rawImages.push({ url: 'placeholder.jpg', id: 'empty', isMain: true })
         }
 
-        // Initialize state values with gray loading layout boxes immediately
         const initialImagePlaceholderArray = rawImages.map(img => ({
           ...img,
           resolvedSrc: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
@@ -103,7 +101,6 @@ export default function ProductDetail() {
         setActiveIndex(0)
         setImagesLoading(true)
 
-        // 3. Fire parallel, independent requests instead of bottlenecking with Promise.all
         rawImages.forEach(async (img, index) => {
           try {
             let safeSrc = 'https://placehold.co/600?text=No+Image+Found'
@@ -117,7 +114,6 @@ export default function ProductDetail() {
 
             if (!activeSession) return
 
-            // Update single slots in the state array directly as soon as they settle
             setImages((currentImages) => {
               const nextImages = [...currentImages]
               if (nextImages[index]) {
@@ -130,7 +126,6 @@ export default function ProductDetail() {
               return nextImages
             })
 
-            // Turn off the spinner overlay instantly if this index matches what the user looks at
             if (index === 0) {
               setImagesLoading(false)
             }
@@ -399,6 +394,35 @@ export default function ProductDetail() {
           <div className={styles.infoTop}>
             <span className={styles.eyebrowCategory}>Product Identity</span>
             <h1 className={styles.name}>{productName}</h1>
+            
+            {/* --- NEW RATING SUMMARY UI --- */}
+            <div className={styles.ratingSummary}>
+              {product.numberOfReviews > 0 ? (
+                <>
+                  <div className={styles.starsDisplay}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span 
+                        key={star} 
+                        className={star <= Math.round(product.overAllRating || 0) ? styles.starFilled : styles.starEmpty}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <span className={styles.ratingScore}>{(product.overAllRating || 0).toFixed(1)}</span>
+                  <span className={styles.ratingDivider}>·</span>
+                  <span className={styles.reviewCount}>
+                    {product.numberOfReviews} {product.numberOfReviews === 1 ? 'Review' : 'Reviews'}
+                  </span>
+                </>
+              ) : (
+                <div className={styles.noReviewsBadge}>
+                  No reviews yet
+                </div>
+              )}
+            </div>
+            {/* ----------------------------- */}
+
             <div className={styles.priceRow}>
               <span className={styles.currency}>₱</span>
               <span className={styles.price}>
@@ -477,6 +501,9 @@ export default function ProductDetail() {
               </div>
             </div>
           )}
+          
+          {/* Integrated Reviews */}
+          <ReviewSection productId={id} />
         </div>
       </div>
     </div>
