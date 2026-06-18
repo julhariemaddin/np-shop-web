@@ -18,32 +18,45 @@
 .header {
   margin-bottom: var(--space-6);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.logo {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-primary);
-  display: inline-block;
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: var(--space-5);
+  user-select: none;
+  text-decoration: none;
 }
 
-.logo span {
-  color: var(--accent);
+.logoImage {
+  height: 3.7rem;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  transition: filter var(--duration-base) var(--ease);
+}
+
+.logoDark .logoImage {
+  filter: invert(1) brightness(1.2);
 }
 
 .title {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 400;
+  font-family: var(--font-display, Georgia, Cambria, serif);
+  font-size: 28px;
+  font-weight: 500;
   font-style: italic;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   margin-bottom: var(--space-2);
 }
 
 .subtitle {
   font-size: 13px;
+  font-family: system-ui, -apple-system, sans-serif;
   color: var(--text-muted);
 }
 
@@ -51,20 +64,57 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  width: 100%;
+}
+
+.passwordContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bulletproof Button Styling */
+.peekButton {
+  position: absolute;
+  right: 14px;
+  top: 36px;
+  z-index: 999; 
+  background: transparent;
+  border: none;
+  padding: 4px;
+  color: #888888; /* Locked to a universally visible medium grey */
+  opacity: 0.6; /* Starts slightly faded */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  outline: none;
+}
+
+.peekButton:hover {
+  opacity: 1; /* Pops into full visibility without changing the actual hex color */
+}
+
+.peekButton:active {
+  transform: scale(0.92);
 }
 
 .footer {
   text-align: center;
   font-size: 13px;
+  font-family: system-ui, -apple-system, sans-serif;
   color: var(--text-muted);
   margin-top: var(--space-5);
   padding-top: var(--space-5);
   border-top: 1px solid var(--border);
+  width: 100%;
 }
 
 .link {
   color: var(--accent);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .link:hover {

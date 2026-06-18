@@ -74,6 +74,7 @@
 }
 
 .navBtnShop {
+  display: none; /* Default state: Hidden on Desktop / Wide views */
   background: transparent;
   color: var(--text-primary);
   border: 2px solid var(--border);
@@ -90,26 +91,6 @@
 .navBtnShop:hover {
   border-color: var(--text-primary);
   background: var(--bg-subtle);
-}
-
-.navBtnSignIn {
-  background: var(--text-primary);
-  color: var(--bg-base);
-  border: 2px solid var(--text-primary);
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  padding: 8px 20px;
-  border-radius: 0px;
-  cursor: pointer;
-  transition: all 0.12s ease;
-  white-space: nowrap;
-}
-
-.navBtnSignIn:hover {
-  background: var(--neon-glow-secondary);
-  border-color: var(--neon-glow-secondary);
-  color: #000000;
 }
 
 /* ─── Structural Workspace Layout ─── */
@@ -414,6 +395,10 @@
   .navActions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .navBtnShop {
+    display: inline-block; /* Becomes visible only on mobile viewports */
   }
 
   .grid {

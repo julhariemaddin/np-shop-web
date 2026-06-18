@@ -32,7 +32,7 @@
 }
 
 .logoImage {
-  height: 3.7rem; /* Increased from 34px to make the logo a little bigger */
+  height: 3.7rem; /* Preserved 3.7rem sizing scale */
   width: auto;
   display: block;
   object-fit: contain;
@@ -48,7 +48,7 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px; /* Marginally increased spacing for better breathing room with outlined capsules */
   margin-left: 48px;
   flex: 1;
 }
@@ -61,13 +61,17 @@
   text-transform: uppercase;
   text-decoration: none;
   padding: 8px 16px;
+  border: 1px solid var(--border); /* Added to match the button styling */
+  background: var(--bg-base); /* Added to match the button styling */
   border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .navLink:hover {
   color: var(--text-primary);
-  background: var(--bg-subtle, #f5f5f5);
+  border-color: var(--text-primary); /* Added to swap borders correctly on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* Context Control Actions Utility Container */
@@ -250,7 +254,7 @@
   margin: 6px 4px;
 }
 
-/* Public Fallback Credentials Credentials Controllers */
+/* Public Fallback Credentials Controllers */
 .authLinks {
   display: flex;
   align-items: center;

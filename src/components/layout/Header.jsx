@@ -60,7 +60,6 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        {/* Logo container utilizing favicon.png with correct routing wrapper */}
         <Link 
           to="/" 
           className={`${styles.logoContainer} ${theme === 'dark' ? styles.logoDark : ''}`}
