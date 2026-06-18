@@ -47,7 +47,7 @@ export default function Home() {
               onClick={() => navigate('/products')}
               className={styles.navBtnShop}
             >
-              Shop →
+              Shop
             </button>
           </div>
 
