@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { productEndpoints, categoryEndpoints, imageEndpoints } from '../api/endpoints'
@@ -7,13 +8,10 @@ import styles from './Products.module.css'
 // Global client-side Cache Engine ensuring a strict maximum allocation of 50 assets
 const BLOB_IMAGE_CACHE = {
   maxSize: 50,
-  // Using a Map layout because it naturally preserves original insertion order for key tracking
   store: new Map(),
 
   get(key) {
     if (!this.store.has(key)) return null;
-    
-    // Refresh the usage priority state by moving it to the end of the Map
     const value = this.store.get(key);
     this.store.delete(key);
     this.store.set(key, value);
@@ -24,7 +22,6 @@ const BLOB_IMAGE_CACHE = {
     if (this.store.has(key)) {
       this.store.delete(key);
     } else if (this.store.size >= this.maxSize) {
-      // Evict and clear memory footprint for the oldest inserted cache asset
       const oldestKey = this.store.keys().next().value;
       const oldestValue = this.store.get(oldestKey);
       
@@ -56,7 +53,6 @@ function ProductImage({ product, targetImage, displayTitle }) {
     setImageLoading(true)
 
     if (targetImage && targetImage !== 'placeholder.jpg') {
-      // Check memory cache registers before issuing an external asynchronous request
       const cachedUrl = BLOB_IMAGE_CACHE.get(targetImage);
 
       if (cachedUrl) {
@@ -66,7 +62,6 @@ function ProductImage({ product, targetImage, displayTitle }) {
         imageEndpoints.fetchBlobUrl(targetImage)
           .then((resolvedUrl) => {
             if (!isCurrentRequest) {
-              // If component changed goals mid-request, wipe the unneeded blob assignment
               if (resolvedUrl && resolvedUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(resolvedUrl);
               }
@@ -120,13 +115,31 @@ export default function Products() {
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
+  
+  // Filtering & Sorting State
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState('createdAt,DESC')
+  
+  // Category Modal State (Inspired by AdminProductForm)
+  const [catModalOpen, setCatModalOpen] = useState(false)
+  const [catSearchQuery, setCatSearchQuery] = useState('')
   
   const debouncedQuery = useDebounce(query, 420)
   const isSearching = debouncedQuery.trim().length > 0
   const inputRef = useRef(null)
   const navigate = useNavigate()
+
+  // Prevent body scrolling when category modal is open
+  useEffect(() => {
+    if (catModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+      setCatSearchQuery('')
+    }
+    return () => { document.body.style.overflow = 'unset' }
+  }, [catModalOpen])
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -143,11 +156,12 @@ export default function Products() {
       let data
       const cleanQuery = debouncedQuery.trim()
       
+      // Pass the sort parameter directly to the backend
       if (cleanQuery) {
-        const res = await productEndpoints.search(cleanQuery, { page, size: 15 })
+        const res = await productEndpoints.search(cleanQuery, { page, size: 15, sort })
         data = res.data
       } else {
-        const res = await productEndpoints.getAll({ page, size: 15 })
+        const res = await productEndpoints.getAll({ page, size: 15, sort })
         data = res.data
       }
       
@@ -160,11 +174,13 @@ export default function Products() {
     } finally {
       setLoading(false)
     }
-  }, [page, debouncedQuery])
+  }, [page, debouncedQuery, sort]) // Added sort as dependency
 
   useEffect(() => { fetchCategories() }, [fetchCategories])
   useEffect(() => { fetchProducts() }, [fetchProducts])
-  useEffect(() => { setPage(0) }, [debouncedQuery])
+  
+  // Reset page when search or sort changes
+  useEffect(() => { setPage(0) }, [debouncedQuery, sort])
 
   const filteredProducts = selectedCategory && !isSearching
     ? products.filter((p) => p.categoryId === selectedCategory)
@@ -180,6 +196,11 @@ export default function Products() {
   const clearSearch = () => {
     setQuery('')
     inputRef.current?.focus()
+  }
+
+  const selectCategory = (categoryId) => {
+    setSelectedCategory(categoryId)
+    setCatModalOpen(false)
   }
 
   const highlightText = (text, searchWord) => {
@@ -202,14 +223,11 @@ export default function Products() {
     if (product.mainImage?.url || product.mainImage?.imageUrl) {
       return product.mainImage.url || product.mainImage.imageUrl
     }
-    
     if (product.images && product.images.length > 0) {
       const primaryImage = product.images.find(img => img.isMain === true || img.primary === true)
       if (primaryImage) return primaryImage.url || primaryImage.imageUrl
-      
       return product.images[0].url || product.images[0].imageUrl
     }
-    
     if (product.imageUrl) return product.imageUrl
     return 'placeholder.jpg'
   }
@@ -221,6 +239,24 @@ export default function Products() {
     }
     return numericPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+
+  // Star Rating Helper
+  const renderStars = (rating) => {
+    const rounded = Math.round(rating || 0)
+    return (
+      <div className={styles.starDisplay}>
+        {[...Array(5)].map((_, i) => (
+          <span key={i} className={i < rounded ? styles.starFilled : styles.starEmpty}>
+            ★
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  const modalFilteredCategories = categories.filter(c =>
+    c.categoryName?.toLowerCase().includes(catSearchQuery.toLowerCase())
+  )
 
   return (
     <div className={styles.page}>
@@ -242,7 +278,7 @@ export default function Products() {
               ref={inputRef}
               className={styles.searchInput}
               type="text"
-              placeholder="Search..."
+              placeholder="Search products..."
               value={query}
               onChange={handleQueryChange}
               autoComplete="off"
@@ -260,6 +296,8 @@ export default function Products() {
 
       {/* Body Layout */}
       <div className={styles.body}>
+        
+        {/* Desktop Sidebar */}
         <aside className={styles.sidebar}>
           <p className={styles.sidebarLabel}>Categories</p>
           <div className={styles.categoryScrollContainer}>
@@ -290,16 +328,41 @@ export default function Products() {
 
         <section className={styles.main}>
           <div className={styles.topBar}>
-            <p className={styles.resultLabel}>
-              {isSearching
-                ? `Results for "${debouncedQuery}"`
-                : selectedCategory
-                  ? categories.find((c) => c.id === selectedCategory)?.categoryName
-                  : 'All Items'}
-            </p>
-            {!loading && (
-              <span className={styles.countBadge}>{filteredProducts.length} Results</span>
-            )}
+            <div className={styles.topBarLeft}>
+              <p className={styles.resultLabel}>
+                {isSearching
+                  ? `Results for "${debouncedQuery}"`
+                  : selectedCategory
+                    ? categories.find((c) => c.id === selectedCategory)?.categoryName
+                    : 'All Items'}
+              </p>
+              {!loading && (
+                <span className={styles.countBadge}>{filteredProducts.length} Results</span>
+              )}
+            </div>
+
+            <div className={styles.controlsWrap}>
+              {/* Mobile Category Trigger */}
+              <button 
+                className={styles.mobileCategoryBtn} 
+                onClick={() => setCatModalOpen(true)}
+                disabled={isSearching}
+              >
+                {selectedCategory ? categories.find((c) => c.id === selectedCategory)?.categoryName : 'Categories'}
+              </button>
+
+              {/* Sorting Select */}
+              <select 
+                className={styles.sortSelect}
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+              >
+                <option value="createdAt,DESC">Newest First</option>
+                <option value="createdAt,ASC">Oldest First</option>
+                <option value="averageRating,DESC">Highest Rated</option>
+                <option value="averageRating,ASC">Lowest Rated</option>
+              </select>
+            </div>
           </div>
 
           {loading ? (
@@ -324,12 +387,12 @@ export default function Products() {
           ) : filteredProducts.length === 0 ? (
             <div className={styles.empty}>
               <p className={styles.emptyTitle}>Nothing found</p>
-              <p className={styles.emptyHint}>Try a different term.</p>
+              <p className={styles.emptyHint}>Try a different term or category.</p>
             </div>
           ) : (
             <AnimatePresence mode="wait">
               <motion.div
-                key={debouncedQuery + selectedCategory + page}
+                key={debouncedQuery + selectedCategory + page + sort}
                 className={styles.grid}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -339,6 +402,10 @@ export default function Products() {
                 {filteredProducts.map((product) => {
                   const displayTitle = product.name || product.productName || 'Untitled'
                   const targetImage = getProductMainImage(product)
+                  
+                  // Extract Rating Info (Matching ProductDetail fallbacks exactly)
+                  const avgRating = product.overAllRating || product.averageRating || product.rating || 0
+                  const revCount = product.numberOfReviews || product.reviewCount || product.numReviews || product.reviews?.length || 0
 
                   return (
                     <div 
@@ -354,6 +421,15 @@ export default function Products() {
                         />
                       </div>
                       <div className={styles.productBody}>
+                        
+                        {/* Rating Display */}
+                        <div className={styles.ratingWrap}>
+                          {renderStars(avgRating)}
+                          <span className={styles.reviewCount}>
+                            {revCount > 0 ? `(${revCount})` : 'No reviews'}
+                          </span>
+                        </div>
+
                         <h3 className={styles.productTitle}>
                           {highlightText(displayTitle, debouncedQuery)}
                         </h3>
@@ -404,6 +480,51 @@ export default function Products() {
           )}
         </section>
       </div>
+
+      {/* Category Selection Modal (Mobile/Tablet Only) */}
+      {catModalOpen && createPortal(
+        <div className={styles.modalOverlay} onClick={() => setCatModalOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Select Category</h3>
+              <button className={styles.closeBtn} onClick={() => setCatModalOpen(false)}>✕</button>
+            </div>
+            <div className={styles.modalBody}>
+              <input 
+                type="text" 
+                className={styles.modalSearchInput}
+                placeholder="Search categories..."
+                value={catSearchQuery}
+                onChange={(e) => setCatSearchQuery(e.target.value)}
+              />
+              <ul className={styles.modalCatList}>
+                <li>
+                  <button 
+                    className={`${styles.modalCatItem} ${!selectedCategory ? styles.catActive : ''}`}
+                    onClick={() => selectCategory(null)}
+                  >
+                    Everything
+                  </button>
+                </li>
+                {modalFilteredCategories.map(cat => (
+                  <li key={cat.id}>
+                    <button 
+                      className={`${styles.modalCatItem} ${selectedCategory === cat.id ? styles.catActive : ''}`}
+                      onClick={() => selectCategory(cat.id)}
+                    >
+                      {cat.categoryName}
+                    </button>
+                  </li>
+                ))}
+                {modalFilteredCategories.length === 0 && (
+                  <p className={styles.modalEmpty}>No categories found.</p>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
