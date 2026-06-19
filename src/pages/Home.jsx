@@ -136,7 +136,7 @@ export default function Home() {
               <span className={styles.serverStatusText}>
                 {serverStatus === 'checking' && 'PINGING INSTANCE...'}
                 {serverStatus === 'online' && 'SERVER // ONLINE'}
-                {serverStatus === 'offline' && 'SERVER // UNREACHABLE'}
+                {serverStatus === 'offline' && 'SERVER / UNREACHABLE // Server self hosted in nrok tunnel or local network may be down.'}
               </span>
             </div>
           </div>
