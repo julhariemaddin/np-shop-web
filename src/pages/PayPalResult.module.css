@@ -1,82 +1,101 @@
 .page {
-  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100vh - var(--header-height, 80px));
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-7) var(--space-4);
+  background: var(--bg-default);
 }
 
 .card {
-  max-width: 400px;
+  max-width: 440px;
   width: 100%;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  padding: var(--space-8);
+  padding: var(--space-8) var(--space-6);
   text-align: center;
+}
+
+.content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
 }
 
-.iconSuccess, .iconError, .iconCancel {
-  width: 56px;
-  height: 56px;
+/* Beautiful Icon Wrappers */
+.iconWrapper {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  font-weight: 300;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 
-.iconSuccess {
-  border: 1px solid var(--success);
-  color: var(--success);
+.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
 }
 
-.iconError {
-  border: 1px solid var(--error);
-  color: var(--error);
+.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
 }
 
-.iconCancel {
-  border: 1px solid var(--text-muted);
+.cancel {
+  background: var(--bg-subtle);
   color: var(--text-muted);
 }
 
+/* Spinner */
 .spinner {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 2px solid var(--border);
-  border-top-color: var(--accent);
+  border-top-color: var(--text-primary);
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  margin-bottom: var(--space-5);
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
+/* Typography */
 .title {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 400;
   font-style: italic;
   color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.01em;
 }
 
 .message, .sub {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 14px;
+  color: var(--text-secondary);
   line-height: 1.6;
+  max-width: 90%;
+  margin: 0 auto;
 }
 
-.link {
-  font-size: 13px;
-  color: var(--accent);
-  font-weight: 500;
-  margin-top: var(--space-2);
-  text-decoration: none;
+.actions {
+  margin-top: var(--space-6);
+  width: 100%;
 }
 
-.link:hover { text-decoration: underline; }
+/* Dark Mode Overrides (Optional based on your setup) */
+[data-theme='dark'] .success {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+[data-theme='dark'] .error {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+[data-theme='dark'] .cancel {
+  background: rgba(255, 255, 255, 0.05);
+}
