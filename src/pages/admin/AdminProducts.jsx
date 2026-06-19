@@ -6,6 +6,43 @@ import { productEndpoints, imageEndpoints } from '../../api/endpoints'
 import Button from '../../components/common/Button'
 import styles from './AdminProducts.module.css'
 
+// ─── Safe Image Component ───────────────────────────────────────────────────
+// This forces image requests to go through Axios, attaching the ngrok header
+function SafeProductImage({ filename, alt, className }) {
+  const [imgSrc, setImgSrc] = useState(null)
+
+  useEffect(() => {
+    let isMounted = true
+    
+    async function loadSecureImage() {
+      if (!filename) return
+      const url = await imageEndpoints.fetchBlobUrl(filename)
+      if (isMounted) setImgSrc(url)
+    }
+
+    loadSecureImage()
+
+    return () => {
+      isMounted = false
+      // Clean up the memory object URL when component unmounts
+      if (imgSrc && imgSrc.startsWith('blob:')) {
+        URL.revokeObjectURL(imgSrc)
+      }
+    }
+  }, [filename])
+
+  if (!imgSrc) {
+    return (
+      <div className={className} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5' }}>
+        <div className={styles.spinner} style={{ width: '16px', height: '16px' }} />
+      </div>
+    )
+  }
+
+  return <img src={imgSrc} alt={alt} className={className} />
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
 export default function AdminProducts() {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
@@ -89,8 +126,8 @@ export default function AdminProducts() {
                 >
                   <div className={styles.productCell}>
                     {p.mainImage?.url ? (
-                      <img
-                        src={imageEndpoints.getUrl(p.mainImage.url)}
+                      <SafeProductImage
+                        filename={p.mainImage.url}
                         alt={p.name}
                         className={styles.thumb}
                       />
@@ -157,11 +194,11 @@ export default function AdminProducts() {
         {totalPages > 1 && (
           <div className={styles.pagination}>
             <Button variant="ghost" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-              ← Prev
+              &larr; Prev
             </Button>
             <span className={styles.pageInfo}>{page + 1} / {totalPages}</span>
             <Button variant="ghost" size="sm" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>
-              Next →
+              Next &rarr;
             </Button>
           </div>
         )}
