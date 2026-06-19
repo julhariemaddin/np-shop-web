@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { productEndpoints, categoryEndpoints, imageEndpoints } from '../../api/endpoints'
 import Input from '../../components/common/Input'
@@ -9,7 +10,9 @@ import styles from './AdminProductForm.module.css'
 export default function AdminProductForm() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const isEdit = Boolean(id)
+  
+  // Ensures that navigating to '/admin/products/new' doesn't trigger an API fetch for an ID of 'new'
+  const isEdit = Boolean(id && id !== 'new')
 
   const MAX_NAME = 100
   const MAX_DESC = 1000
@@ -35,7 +38,10 @@ export default function AdminProductForm() {
     async function loadData() {
       try {
         const { data: catData } = await categoryEndpoints.getAll()
-        if (isMounted) setCategories(catData)
+        
+        // Safely extract the array whether the backend returns a raw array or a paginated object (e.g., .content)
+        const fetchedCategories = Array.isArray(catData) ? catData : catData?.content || []
+        if (isMounted) setCategories(fetchedCategories)
 
         if (isEdit) {
           const { data: prodData } = await productEndpoints.getById(id)
@@ -209,7 +215,12 @@ export default function AdminProductForm() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.inner}>
+      <motion.div 
+        className={styles.inner}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
         <div className={styles.topBar}>
           <Link to="/admin/products" className={styles.backButton}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -331,7 +342,7 @@ export default function AdminProductForm() {
             </Button>
           </div>
         </form>
-      </div>
+      </motion.div>
 
       {modalOpen && (
         <div className={styles.modalOverlay} onClick={() => setModalOpen(false)}>

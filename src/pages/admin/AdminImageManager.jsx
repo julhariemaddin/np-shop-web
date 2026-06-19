@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { productEndpoints, imageEndpoints } from '../../api/endpoints'
@@ -8,29 +8,69 @@ import styles from './AdminImageManager.module.css'
 
 export default function AdminImageManager() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  
   const [product, setProduct] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
 
-  const fetchProduct = async () => {
+  // 1. Prevent routing errors: You cannot manage images for a product that hasn't been created yet
+  useEffect(() => {
+    if (id === 'new') {
+      toast.error('Please save the product first before managing images.')
+      navigate('/admin/products')
+    }
+  }, [id, navigate])
+
+  const fetchProduct = useCallback(async () => {
+    if (id === 'new') return
+
+    setIsLoading(true)
     try {
       const { data } = await productEndpoints.getById(id)
       setProduct(data)
-    } catch {
+    } catch (error) {
       toast.error('Failed to load product image references')
+    } finally {
+      setIsLoading(false)
     }
-  }
+  }, [id])
 
   useEffect(() => { 
     fetchProduct() 
-  }, [id])
+  }, [fetchProduct])
 
-  if (!product) return (
-    <div className={styles.loadWrap}><div className={styles.spinner} /></div>
-  )
+  // Proper loading state evaluation to prevent infinite spinners on failed network requests
+  if (isLoading) {
+    return (
+      <div className={styles.loadWrap}>
+        <div className={styles.spinner} />
+      </div>
+    )
+  }
+
+  // Fallback UI if the product failed to load completely
+  if (!product) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.inner} style={{ textAlign: 'center', paddingTop: '40px' }}>
+          <h2 className={styles.heading} style={{ marginBottom: '16px' }}>Product not found</h2>
+          <Button onClick={() => navigate('/admin/products')} variant="primary">
+            Back to Products List
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const mainId = product.mainImage?.id
-  const safeImagesArray = product.images || []
+  
+  // 2. The Fix: Safely extract the array whether the backend returns a raw array or a paginated object (.content)
+  const rawImages = product.images || []
+  const safeImagesArray = Array.isArray(rawImages) ? rawImages : rawImages.content || []
+  
+  // Filter out the main image from the safe array so it doesn't duplicate, then filter out nulls
   const allImages = [product.mainImage, ...safeImagesArray.filter((i) => i.id !== mainId)].filter(Boolean)
   
   // Strict maximum image count limit evaluation boundary
@@ -50,22 +90,24 @@ export default function AdminImageManager() {
     try {
       await imageEndpoints.upload(id, file)
       toast.success('Image uploaded successfully')
-      fetchProduct()
+      await fetchProduct()
     } catch {
       toast.error('Upload failed')
     } finally {
       setUploading(false)
+      // Reset the input value so the same file can be uploaded again if needed
       e.target.value = ''
     }
   }
 
   const handleDeleteImage = async (imageId) => {
-    if (!confirm('Are you sure you want to permanently delete this image?')) return
+    if (!window.confirm('Are you sure you want to permanently delete this image?')) return
+    
     setDeletingId(imageId)
     try {
       await imageEndpoints.delete(imageId)
       toast.success('Image removed successfully')
-      fetchProduct()
+      await fetchProduct()
     } catch {
       toast.error('Failed to delete image')
     } finally {
