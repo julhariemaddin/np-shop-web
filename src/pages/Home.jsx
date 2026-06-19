@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import styles from './Home.module.css'
 
 const categories = [
@@ -6,7 +8,7 @@ const categories = [
     id: 'cat-1',
     title: 'Daily Essentials',
     img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80',
-  tag: 'LOWKEY FIRE'
+    tag: 'LOWKEY FIRE'
   },
   {
     id: 'cat-2',
@@ -24,9 +26,75 @@ const categories = [
 
 export default function Home() {
   const navigate = useNavigate()
+  
+  const [showTosModal, setShowTosModal] = useState(false)
+  const [serverStatus, setServerStatus] = useState('checking')
+
+  useEffect(() => {
+    const isAccepted = localStorage.getItem('np_shop_tos_accepted')
+    if (!isAccepted) {
+      setShowTosModal(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    async function verifyBackendStatus() {
+      try {
+        const res = fetch('/server/check')
+        if (res.ok) {
+          setServerStatus('online')
+        } else {
+          setServerStatus('offline')
+        }
+      } catch (err) {
+        setServerStatus('offline')
+      }
+    }
+    verifyBackendStatus()
+  }, [])
+
+  const handleAcceptTerms = () => {
+    localStorage.setItem('np_shop_tos_accepted', 'true')
+    setShowTosModal(false)
+    toast.success('System cleared // Access granted')
+  }
 
   return (
     <div className={styles.page}>
+      
+      {/* Stark Blockout Terms and Conditions Overlay */}
+      {showTosModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            
+            <div className={styles.modalHeader}>
+              <span className={styles.modalEyebrow}>[!] SYSTEM SECURITY NOTICE</span>
+              <h2 className={styles.modalHeading}>TERMS OF SERVICE // REGISTRATION REGULATION</h2>
+            </div>
+            
+            <div className={styles.modalBodyText}>
+              <p>Review environment baseline metrics before proceeding to platform architecture interactions:</p>
+              
+              <div className={styles.warningBox}>
+                <span className={styles.boxTag}>// 01 / SANDBOX DEPLOYMENT</span>
+                <p>This engine operates exclusively within a mock sandbox financial wrapper. No actual transactions or standard payment routes are live.</p>
+              </div>
+
+              <div className={styles.warningBox}>
+                <span className={styles.boxTag}>// 02 / DATA RETENTION</span>
+                <p>The host administrator maintains full administrative system state privileges. Credentials and text variables map directly inside backend records. Use dummy credentials only.</p>
+              </div>
+              
+              <p className={styles.modalFooterNote}>Execution of click sequence below sets validation flag to true and unlocks the workspace grid.</p>
+            </div>
+
+            <button className={styles.modalAcceptBtn} onClick={handleAcceptTerms}>
+              ACCEPT TERMS & OPEN INTERFACE
+            </button>
+            
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className={styles.strip}>
@@ -59,6 +127,19 @@ export default function Home() {
 
         {/* Sidebar */}
         <aside className={styles.sidebar}>
+
+          {/* Server Connectivity Panel */}
+          <div className={styles.serverPanel}>
+            <p className={styles.sidebarLabel}>SYSTEM NODE</p>
+            <div className={styles.serverStatusRow}>
+              <span className={`${styles.statusIndicator} ${styles[serverStatus]}`} />
+              <span className={styles.serverStatusText}>
+                {serverStatus === 'checking' && 'PINGING INSTANCE...'}
+                {serverStatus === 'online' && 'SERVER // ONLINE'}
+                {serverStatus === 'offline' && 'SERVER // UNREACHABLE'}
+              </span>
+            </div>
+          </div>
 
           <p className={styles.sidebarLabel}>
             About Us

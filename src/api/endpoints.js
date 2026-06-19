@@ -50,6 +50,7 @@ export const imageEndpoints = {
     }
   }
 }
+// Server
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 
