@@ -123,8 +123,50 @@
   letter-spacing: -0.02em;
 }
 
+/* Sandbox Notice Styles */
+.sandboxNotice {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: var(--space-4);
+  margin-top: var(--space-4);
+  font-size: 12px;
+  color: #92400e;
+}
+
+.sandboxTitle {
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  font-size: 13px;
+}
+
+.credentials {
+  margin-top: var(--space-3);
+  background: rgba(255, 255, 255, 0.6);
+  padding: var(--space-3);
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.credentials p {
+  margin: 4px 0;
+  font-size: 13px;
+  user-select: all; /* Allows double-clicking to select the whole line easily */
+}
+
+/* Dark mode support */
 [data-theme='dark'] .paypalText {
   color: #60A5FA;
+}
+
+[data-theme='dark'] .sandboxNotice {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+[data-theme='dark'] .credentials {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {

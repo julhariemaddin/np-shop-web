@@ -73,6 +73,17 @@ export default function Checkout() {
             <div className={styles.paypalBadge}>
               <span className={styles.paypalText}>PayPal</span>
             </div>
+
+            {/* Sandbox Credentials Notice */}
+            <div className={styles.sandboxNotice}>
+              <p className={styles.sandboxTitle}>⚠️ Sandbox Mode Active</p>
+              <p>Please use the following test credentials:</p>
+              <div className={styles.credentials}>
+                <p><strong>Email:</strong> this-is-a-sandbox-email@np-shop.com</p>
+                <p><strong>Password:</strong> 12345678</p>
+              </div>
+            </div>
+
             <Button
               variant="accent"
               size="lg"
