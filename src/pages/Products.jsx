@@ -359,8 +359,8 @@ export default function Products() {
               >
                 <option value="createdAt,DESC">Newest First</option>
                 <option value="createdAt,ASC">Oldest First</option>
-                <option value="averageRating,DESC">Highest Rated</option>
-                <option value="averageRating,ASC">Lowest Rated</option>
+                <option value="overAllRating,DESC">Highest Rated</option>
+                <option value="overAllRating,ASC">Lowest Rated</option>
               </select>
             </div>
           </div>
