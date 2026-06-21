@@ -1,4 +1,4 @@
-import { api, authApi, userApi, paypalApi } from './client'
+import { api, authApi, userApi, paypalApi ,serverApi} from './client'
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,13 @@ export const imageEndpoints = {
     }
   }
 }
+
+// Server
+
+export const serverEndpoints = {
+  checkStatus: () => serverApi.get('/check'),
+}
+
 
 // ─── Categories ───────────────────────────────────────────────────────────────
 

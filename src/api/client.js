@@ -29,6 +29,11 @@ export const paypalApi = axios.create({
   headers: defaultHeaders,
 });
 
+export const serverApi = axios.create({
+  baseURL: import.meta.env.VITE_SERVER_BASE_URL,
+  headers: defaultHeaders,
+});
+
 // ─── Token Helpers ────────────────────────────────────────────────────────────
 
 const getAccessToken = () => localStorage.getItem('accessToken');
@@ -119,4 +124,4 @@ const handle401 = (axiosInstance) => {
   );
 };
 
-[api, userApi, paypalApi].forEach(handle401);
+[api, userApi, paypalApi , serverApi].forEach(handle401);

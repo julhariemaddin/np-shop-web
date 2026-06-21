@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { serverEndpoints } from '../api/endpoints'
 import toast from 'react-hot-toast'
 import styles from './Home.module.css'
 
@@ -40,16 +41,14 @@ export default function Home() {
   useEffect(() => {
     async function verifyBackendStatus() {
       try {
-        const res = fetch('/server/check')
-        if (res.ok) {
-          setServerStatus('online')
-        } else {
-          setServerStatus('offline')
-        }
+        const res = await serverEndpoints.checkStatus()
+        res.status === 200 ? setServerStatus('online') : setServerStatus('offline')
+    
       } catch (err) {
         setServerStatus('offline')
       }
     }
+
     verifyBackendStatus()
   }, [])
 
