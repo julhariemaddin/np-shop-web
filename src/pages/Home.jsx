@@ -45,7 +45,7 @@ export default function Home() {
         res.status === 200 ? setServerStatus('online') : setServerStatus('offline')
     
       } catch (err) {
-        setServerStatus('offline')
+        err.response?.status === 429 ? toast.error('Rate limit hit, retrying shortly...') && setServerStatus('ratelimit') : setServerStatus('offline')
       }
     }
 
@@ -136,6 +136,7 @@ export default function Home() {
                 {serverStatus === 'checking' && 'PINGING INSTANCE...'}
                 {serverStatus === 'online' && 'SERVER // ONLINE'}
                 {serverStatus === 'offline' && 'Homie server is down , backend dev is to broke to afford a vps try again later or contact the backend dev for a testing'}
+              {serverStatus === 'ratelimit' && 'AW MAN WE HIT A LOT OF REQUESTS IN YOUR NETWORK, TRY AGAIN IN A MINUTE...'}
               </span>
             </div>
           </div>
