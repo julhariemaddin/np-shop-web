@@ -83,7 +83,7 @@ const attachToken = (config) => {
 };
 
 // Apply request interceptor
-[api, userApi, paypalApi].forEach(instance => instance.interceptors.request.use(attachToken));
+[api, userApi, paypalApi , serverApi].forEach(instance => instance.interceptors.request.use(attachToken));
 
 // Apply 401 response interceptor
 const handle401 = (axiosInstance) => {

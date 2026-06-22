@@ -31,24 +31,27 @@ export default function Home() {
   const [showTosModal, setShowTosModal] = useState(false)
   const [serverStatus, setServerStatus] = useState('checking')
 
+
   useEffect(() => {
     const isAccepted = localStorage.getItem('np_shop_tos_accepted')
     if (!isAccepted) {
       setShowTosModal(true)
     }
-  }, [])
-
-  useEffect(() => {
-    async function verifyBackendStatus() {
+  async function verifyBackendStatus() {
       try {
         const res = await serverEndpoints.checkStatus()
-        res.status === 200 ? setServerStatus('online') : setServerStatus('offline')
-    
+        toast.success('Server is online')
+      setServerStatus('online')
       } catch (err) {
-        err.response?.status === 429 ? toast.error('Rate limit hit, retrying shortly...') && setServerStatus('ratelimit') : setServerStatus('offline')
+        if(err.response?.status === 429){
+         toast.error('Rate limit hit, retrying shortly...') 
+         setServerStatus('ratelimit') 
+        }else{
+          toast.error('Server is offline, try again later') 
+          setServerStatus('offline') 
+          }
       }
     }
-
     verifyBackendStatus()
   }, [])
 
@@ -129,7 +132,7 @@ export default function Home() {
 
           {/* Server Connectivity Panel */}
           <div className={styles.serverPanel}>
-            <p className={styles.sidebarLabel}>SYSTEM NODE</p>
+            <p className={styles.sidebarLabel}>SYSTEM STATUS</p>
             <div className={styles.serverStatusRow}>
               <span className={`${styles.statusIndicator} ${styles[serverStatus]}`} />
               <span className={styles.serverStatusText}>
