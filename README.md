@@ -187,18 +187,6 @@ VITE_PAYPAL_BASE_URL=http://localhost:8080/api/paypal
 
 ---
 
-## ☐ Screenshots
-
-> Add your own screenshots here once captured.
-
-| | |
-|---|---|
-| ![Home page](docs/screenshots/home.png) | ![Product listing](docs/screenshots/products.png) |
-| ![Cart](docs/screenshots/cart.png) | ![Checkout](docs/screenshots/checkout.png) |
-| ![Admin dashboard](docs/screenshots/admin-dashboard.png) | ![Dark mode](docs/screenshots/dark-mode.png) |
-
----
-
 ## ⛁ Deployment
 
 Deployed on **Vercel**. `vercel.json` rewrites all paths to `index.html` so React Router's client-side routes resolve correctly on full page loads/refreshes:
