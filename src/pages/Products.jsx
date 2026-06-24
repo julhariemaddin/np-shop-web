@@ -5,32 +5,70 @@ import { useNavigate } from 'react-router-dom'
 import { productEndpoints, categoryEndpoints, imageEndpoints } from '../api/endpoints'
 import styles from './Products.module.css'
 
-// Global client-side Cache Engine ensuring a strict maximum allocation of 50 assets
+// Global client-side Cache Engine ensuring a strict maximum allocation of 50 assets.
+// IMPORTANT: this cache is now reference-counted. A blob URL is only revoked once
+// nothing on screen is still using it. Previously, eviction could revoke a blob URL
+// that was still mounted in an <img>, which silently breaks the image (it falls back
+// to the onError placeholder) with no visible error — this is what caused images to
+// "disappear" over time even without any new fetch happening.
 const BLOB_IMAGE_CACHE = {
   maxSize: 50,
-  store: new Map(),
+  store: new Map(), // key -> { url, refCount }
 
   get(key) {
     if (!this.store.has(key)) return null;
-    const value = this.store.get(key);
+    const entry = this.store.get(key);
+    // refresh recency (LRU) without touching refCount
     this.store.delete(key);
-    this.store.set(key, value);
-    return value;
+    this.store.set(key, entry);
+    return entry.url;
+  },
+
+  // Call when a component starts using a cached URL it did not just create.
+  acquire(key) {
+    const entry = this.store.get(key);
+    if (entry) entry.refCount += 1;
+  },
+
+  // Call when a component stops using a URL (unmount or targetImage change).
+  // Only revokes once refCount hits 0 AND it's no longer the cached entry,
+  // or it has already been evicted from the map.
+  release(key, url) {
+    const entry = this.store.get(key);
+    if (entry && entry.url === url) {
+      entry.refCount = Math.max(0, entry.refCount - 1);
+      return;
+    }
+    // Entry was already evicted from the map while still in use elsewhere.
+    // Nothing to do here — eviction itself defers revocation until refCount is 0
+    // (see set()), so by the time we get here it's safe to revoke if not in use.
   },
 
   set(key, value) {
     if (this.store.has(key)) {
+      const existing = this.store.get(key);
       this.store.delete(key);
-    } else if (this.store.size >= this.maxSize) {
-      const oldestKey = this.store.keys().next().value;
-      const oldestValue = this.store.get(oldestKey);
-      
-      if (oldestValue && oldestValue.startsWith('blob:')) {
-        URL.revokeObjectURL(oldestValue);
-      }
-      this.store.delete(oldestKey);
+      this.store.set(key, { url: value, refCount: existing.refCount + 1 });
+      return;
     }
-    this.store.set(key, value);
+
+    if (this.store.size >= this.maxSize) {
+      // Find the oldest entry that is NOT currently in use anywhere on screen.
+      for (const [oldestKey, oldestEntry] of this.store) {
+        if (oldestEntry.refCount <= 0) {
+          if (oldestEntry.url && oldestEntry.url.startsWith('blob:')) {
+            URL.revokeObjectURL(oldestEntry.url);
+          }
+          this.store.delete(oldestKey);
+          break;
+        }
+        // If every entry is still in use, we temporarily exceed maxSize rather
+        // than revoke a URL that's actively rendered. This trades a small,
+        // bounded amount of extra memory for never breaking a visible image.
+      }
+    }
+
+    this.store.set(key, { url: value, refCount: 1 });
   }
 };
 
@@ -47,45 +85,78 @@ function useDebounce(value, delay) {
 function ProductImage({ product, targetImage, displayTitle }) {
   const [imgSrc, setImgSrc] = useState('')
   const [imageLoading, setImageLoading] = useState(true)
+  const [hasErrored, setHasErrored] = useState(false)
+  const retryTimeoutRef = useRef(null)
+  const currentKeyRef = useRef(null)
+  const currentUrlRef = useRef(null)
 
   useEffect(() => {
     let isCurrentRequest = true;
     setImageLoading(true)
+    setHasErrored(false)
 
-    if (targetImage && targetImage !== 'placeholder.jpg') {
-      const cachedUrl = BLOB_IMAGE_CACHE.get(targetImage);
+    const loadImage = (isRetry = false) => {
+      if (targetImage && targetImage !== 'placeholder.jpg') {
+        const cachedUrl = BLOB_IMAGE_CACHE.get(targetImage);
 
-      if (cachedUrl) {
-        setImgSrc(cachedUrl);
-        setImageLoading(false);
-      } else {
-        imageEndpoints.fetchBlobUrl(targetImage)
-          .then((resolvedUrl) => {
-            if (!isCurrentRequest) {
-              if (resolvedUrl && resolvedUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(resolvedUrl);
+        if (cachedUrl && !isRetry) {
+          BLOB_IMAGE_CACHE.acquire(targetImage);
+          currentKeyRef.current = targetImage;
+          currentUrlRef.current = cachedUrl;
+          setImgSrc(cachedUrl);
+          setImageLoading(false);
+        } else {
+          imageEndpoints.fetchBlobUrl(targetImage)
+            .then((resolvedUrl) => {
+              if (!isCurrentRequest) {
+                if (resolvedUrl && resolvedUrl.startsWith('blob:')) {
+                  URL.revokeObjectURL(resolvedUrl);
+                }
+                return;
               }
-              return;
-            }
-            
-            BLOB_IMAGE_CACHE.set(targetImage, resolvedUrl);
-            setImgSrc(resolvedUrl);
-            setImageLoading(false);
-          })
-          .catch(() => {
-            if (isCurrentRequest) {
+
+              BLOB_IMAGE_CACHE.set(targetImage, resolvedUrl);
+              currentKeyRef.current = targetImage;
+              currentUrlRef.current = resolvedUrl;
+              setImgSrc(resolvedUrl);
+              setImageLoading(false);
+              setHasErrored(false);
+            })
+            .catch((err) => {
+              if (!isCurrentRequest) return;
+
+              // If this looks like an expired-auth failure (401/403) and we
+              // haven't already retried, refresh and try exactly once more
+              // instead of immediately giving up and showing "No Image Found".
+              const status = err?.response?.status;
+              if (!isRetry && (status === 401 || status === 403)) {
+                retryTimeoutRef.current = setTimeout(() => {
+                  if (isCurrentRequest) loadImage(true);
+                }, 300);
+                return;
+              }
+
               setImgSrc('https://placehold.co/300?text=No+Image+Found');
               setImageLoading(false);
-            }
-          });
+              setHasErrored(true);
+            });
+        }
+      } else {
+        setImgSrc('https://placehold.co/300?text=No+Image+Found')
+        setImageLoading(false)
       }
-    } else {
-      setImgSrc('https://placehold.co/300?text=No+Image+Found')
-      setImageLoading(false)
-    }
+    };
+
+    loadImage(false);
 
     return () => {
       isCurrentRequest = false;
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+      // Release our hold on the previous URL so the cache can safely evict it
+      // once nothing else is using it.
+      if (currentKeyRef.current) {
+        BLOB_IMAGE_CACHE.release(currentKeyRef.current, currentUrlRef.current);
+      }
     };
   }, [targetImage])
 
@@ -96,13 +167,16 @@ function ProductImage({ product, targetImage, displayTitle }) {
           <div className={styles.shimmerWave} />
         </div>
       )}
-      <img 
-        src={imgSrc || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} 
-        alt={displayTitle} 
+      <img
+        src={imgSrc || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
+        alt={displayTitle}
         className={`${styles.productImg} ${imageLoading ? styles.imgHidden : styles.imgVisible}`}
         loading="lazy"
         onError={(e) => {
-          e.target.src = 'https://placehold.co/300?text=No+Image+Found'
+          if (!hasErrored) {
+            setHasErrored(true);
+            e.target.src = 'https://placehold.co/300?text=No+Image+Found'
+          }
         }}
       />
     </div>
@@ -115,16 +189,16 @@ export default function Products() {
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
-  
+
   // Filtering & Sorting State
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState('createdAt,DESC')
-  
+
   // Category Modal State (Inspired by AdminProductForm)
   const [catModalOpen, setCatModalOpen] = useState(false)
   const [catSearchQuery, setCatSearchQuery] = useState('')
-  
+
   const debouncedQuery = useDebounce(query, 420)
   const isSearching = debouncedQuery.trim().length > 0
   const inputRef = useRef(null)
@@ -155,7 +229,7 @@ export default function Products() {
     try {
       let data
       const cleanQuery = debouncedQuery.trim()
-      
+
       // Pass the sort parameter directly to the backend
       if (cleanQuery) {
         const res = await productEndpoints.search(cleanQuery, { page, size: 15, sort })
@@ -164,7 +238,7 @@ export default function Products() {
         const res = await productEndpoints.getAll({ page, size: 15, sort })
         data = res.data
       }
-      
+
       setProducts(data.content || [])
       setTotalPages(data.totalPages || 0)
     } catch (err) {
@@ -178,7 +252,7 @@ export default function Products() {
 
   useEffect(() => { fetchCategories() }, [fetchCategories])
   useEffect(() => { fetchProducts() }, [fetchProducts])
-  
+
   // Reset page when search or sort changes
   useEffect(() => { setPage(0) }, [debouncedQuery, sort])
 
@@ -206,11 +280,11 @@ export default function Products() {
   const highlightText = (text, searchWord) => {
     if (!searchWord || !searchWord.trim() || !text) return text
     const cleanSearch = searchWord.trim()
-    
+
     const escapedSearch = cleanSearch.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
     const parts = text.split(new RegExp(`(${escapedSearch})`, 'gi'))
-    
-    return parts.map((part, i) => 
+
+    return parts.map((part, i) =>
       part.toLowerCase() === cleanSearch.toLowerCase() ? (
         <mark key={i} className={styles.highlight}>{part}</mark>
       ) : (
@@ -267,7 +341,7 @@ export default function Products() {
             <span className={styles.eyebrow}>[ verified finds ]</span>
             <h1 className={styles.heroTitle}>The Drop</h1>
           </div>
-          
+
           <div className={styles.searchWrap}>
             <div className={styles.searchIconField}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -296,7 +370,7 @@ export default function Products() {
 
       {/* Body Layout */}
       <div className={styles.body}>
-        
+
         {/* Desktop Sidebar */}
         <aside className={styles.sidebar}>
           <p className={styles.sidebarLabel}>Categories</p>
@@ -343,8 +417,8 @@ export default function Products() {
 
             <div className={styles.controlsWrap}>
               {/* Mobile Category Trigger */}
-              <button 
-                className={styles.mobileCategoryBtn} 
+              <button
+                className={styles.mobileCategoryBtn}
                 onClick={() => setCatModalOpen(true)}
                 disabled={isSearching}
               >
@@ -352,7 +426,7 @@ export default function Products() {
               </button>
 
               {/* Sorting Select */}
-              <select 
+              <select
                 className={styles.sortSelect}
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
@@ -402,26 +476,26 @@ export default function Products() {
                 {filteredProducts.map((product) => {
                   const displayTitle = product.name || product.productName || 'Untitled'
                   const targetImage = getProductMainImage(product)
-                  
+
                   // Extract Rating Info (Matching ProductDetail fallbacks exactly)
                   const avgRating = product.overAllRating || product.averageRating || product.rating || 0
                   const revCount = product.numberOfReviews || product.reviewCount || product.numReviews || product.reviews?.length || 0
 
                   return (
-                    <div 
-                      className={styles.productCard} 
+                    <div
+                      className={styles.productCard}
                       key={product.id}
                       onClick={() => navigate(`/products/${product.id}`)}
                     >
                       <div className={styles.productImgWrap}>
-                        <ProductImage 
-                          product={product} 
-                          targetImage={targetImage} 
-                          displayTitle={displayTitle} 
+                        <ProductImage
+                          product={product}
+                          targetImage={targetImage}
+                          displayTitle={displayTitle}
                         />
                       </div>
                       <div className={styles.productBody}>
-                        
+
                         {/* Rating Display */}
                         <div className={styles.ratingWrap}>
                           {renderStars(avgRating)}
@@ -440,7 +514,7 @@ export default function Products() {
                           <span className={styles.productPrice}>
                             ₱{formatProductPrice(product.price)}
                           </span>
-                          <button 
+                          <button
                             className={styles.exploreBtn}
                             onClick={(e) => {
                               e.stopPropagation()
@@ -490,8 +564,8 @@ export default function Products() {
               <button className={styles.closeBtn} onClick={() => setCatModalOpen(false)}>✕</button>
             </div>
             <div className={styles.modalBody}>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className={styles.modalSearchInput}
                 placeholder="Search categories..."
                 value={catSearchQuery}
@@ -499,7 +573,7 @@ export default function Products() {
               />
               <ul className={styles.modalCatList}>
                 <li>
-                  <button 
+                  <button
                     className={`${styles.modalCatItem} ${!selectedCategory ? styles.catActive : ''}`}
                     onClick={() => selectCategory(null)}
                   >
@@ -508,7 +582,7 @@ export default function Products() {
                 </li>
                 {modalFilteredCategories.map(cat => (
                   <li key={cat.id}>
-                    <button 
+                    <button
                       className={`${styles.modalCatItem} ${selectedCategory === cat.id ? styles.catActive : ''}`}
                       onClick={() => selectCategory(cat.id)}
                     >
